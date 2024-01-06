@@ -6,13 +6,6 @@ const resolvers = require('./resolvers');
 const app = express();
 
 // Express middleware, if any, goes here
-// Sample schema
-const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
-
 
 
 async function startServer() {
