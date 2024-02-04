@@ -1,10 +1,11 @@
 import './App.css'
+import {MainPage} from "./components/MainPage.tsx";
 
 function App() {
   return (
     <>
       <div>
-      <h1>Gardening Journal</h1>
+      <MainPage/>
       </div>
     </>
   )
