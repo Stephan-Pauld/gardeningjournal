@@ -1,11 +1,8 @@
+const { ApolloServer } = require('apollo-server-express');
 const express = require('express');
-const { ApolloServer, gql } = require('apollo-server-express');
-const typeDefs = require('./schemas/typeDefs');
-const resolvers = require('./resolvers');
-
-const app = express();
-
-// Express middleware, if any, goes here
+const typeDefs = require('./typeDefs/index');
+const resolvers = require('./resolvers/index');
+const mongoose = require('mongoose');
 
 
 async function startServer() {
@@ -16,7 +13,7 @@ async function startServer() {
     server.applyMiddleware({ app });
 
 
-    mongoose.connect('mongodb://localhost:27017/yourdbname', { useNewUrlParser: true, useUnifiedTopology: true })
+    mongoose.connect('mongodb://127.0.0.1:27017/garden', { useNewUrlParser: true, useUnifiedTopology: true })
         .then(() => console.log('Connected to MongoDB'))
         .catch(err => console.error('Could not connect to MongoDB...', err));
 
