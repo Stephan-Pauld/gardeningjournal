@@ -1,7 +1,8 @@
 import {useState} from 'react';
 import {NewSeasonModal} from "./NewSeasonModal.tsx";
-import { useMutation, gql } from '@apollo/client';
-
+import {SeasonCard} from "./SeasonCard.tsx";
+import {useMutation, gql, useQuery} from '@apollo/client';
+import { FieldValues, useForm} from 'react-hook-form';
 
 const NEW_SEASON = gql`
   mutation Mutation($name: String!) {
@@ -10,6 +11,25 @@ const NEW_SEASON = gql`
   }
 }
 `;
+
+const GET_ALL_SEASONS = gql`
+query Query {
+  getAllSeasons {
+    id
+    name
+    plants {
+      name
+    }
+    seasonStartDate
+    seasonEndDate
+  }
+}
+`;
+
+type Inputs = {
+  seasonName: string;
+};
+
 export const MainPage = () => {
   const [isOpen, setIsOpen] =useState<boolean>(false)
   const [addSeason, { data, loading, error }] = useMutation(NEW_SEASON, {
@@ -22,6 +42,14 @@ export const MainPage = () => {
     }
   });
 
+  const { data:allSeasonData, loading:allSeasonLoading} = useQuery(GET_ALL_SEASONS,{
+    onCompleted:(data)=>{
+      console.log(allSeasonData)
+    }
+  });
+
+  const { register, handleSubmit,reset, formState: { errors } } = useForm<Inputs>();
+
   const handleNewSeason = () => {
     setIsOpen(true);
   };
@@ -29,23 +57,47 @@ export const MainPage = () => {
   const handleCloseModal = () => {
     setIsOpen(false);
   };
+
+  const onSubmit = async (data: FieldValues) => {
+    try {
+      await addSeason({
+        variables: {
+          name: data.seasonName,
+        },
+      });
+      reset();
+    } catch (error) {
+      console.error('Mutation error:', error);
+      reset();
+    }
+  }
+
+  if(allSeasonLoading) return "Loading"
   return (
-    <div>
+    <>
       <button className="float-right ml-[10px] font-bold rounded-[3px] px-[10px] py-[2px] bg-[#ff0000] text-[#ffffff]">Logout</button>
       <p className="font-bold float-right underline">
         Stephan
       </p>
       <button
-        className="font-bold rounded-lg text-lg  w-48 h-16 bg-[#74ae57] text-[#ffffff] float-left"
+        className="font-bold rounded-lg text-lg  w-48 h-16 bg-[#74ae57] text-[#ffffff] flex justify-center items-center"
         onClick={handleNewSeason}
       >
         Create New Season
       </button>
       <NewSeasonModal
+        register={register}
+        handleSubmit={handleSubmit}
+        onSubmit={onSubmit}
         isOpen={isOpen}
         onClose={handleCloseModal}
         addSeason={addSeason}
       />
+        <div className="mt-[150px] flex justify-around flex-wrap">
+      {allSeasonData.getAllSeasons.map((season) => (
+          <SeasonCard key={season.id}/>
+      ))}
     </div>
-  );
+</>
+);
 }
