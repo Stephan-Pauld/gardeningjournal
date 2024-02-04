@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { NewSeasonModal } from "./NewSeasonModal.tsx";
+import React, { useState } from "react";
+import { NewSeasonModal } from "./modals/NewSeasonModal.tsx";
 import { SeasonCard } from "./SeasonCard.tsx";
 import { useMutation, gql, useQuery } from "@apollo/client";
 import { FieldValues, useForm } from "react-hook-form";
@@ -31,7 +31,7 @@ type Inputs = {
   seasonName: string;
 };
 
-export const MainPage = () => {
+export const MainPage: React.FC<Inputs> = ({ seasonName }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
