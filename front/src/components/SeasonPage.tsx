@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import seedling from "../assets/seedling.png";
-import { useMutation, gql, useQuery } from "@apollo/client";
+import { FieldValues, useForm } from "react-hook-form";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { PlantCard } from "./cards/PlantCard.tsx";
+import seedling from "../assets/seedling.png";
+import { NewPlantModal } from "./modals/NewPlantModal.tsx";
 
 const GET_SEASON_BY_ID = gql`
   query Query($getSeasonById: ID!) {
@@ -21,22 +23,62 @@ const GET_SEASON_BY_ID = gql`
     }
   }
 `;
-export const SeasonPage: React.FC = () => {
-  let { id } = useParams();
-  const [allSeasonData, setAllSeasonData] = useState();
 
-  const { data: seasonData, loading: seasonLoading } = useQuery(
-    GET_SEASON_BY_ID,
-    {
-      variables: {
-        getSeasonById: id,
-      },
-      onCompleted: (data) => {
-        setAllSeasonData(data.getSeasonById);
-        console.log(data.getSeasonById);
-      },
+const ADD_PLANT_TO_SEASON = gql`
+  mutation Mutation($seasonId: ID!, $name: String!, $variety: String) {
+    addPlantToSeason(seasonId: $seasonId, name: $name, variety: $variety) {
+      id
+    }
+  }
+`;
+
+type AllSeasonData = {
+  name: string;
+  notes: string[];
+  plants: [];
+  seasonEndDate: string;
+  seasonStartDate: string;
+};
+
+export const SeasonPage: React.FC = () => {
+  const { id } = useParams();
+  const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const { register, handleSubmit, reset } = useForm();
+
+  const { loading: seasonLoading } = useQuery(GET_SEASON_BY_ID, {
+    variables: {
+      getSeasonById: id,
     },
-  );
+    onCompleted: (data) => {
+      setAllSeasonData(data.getSeasonById);
+      console.log(data.getSeasonById);
+    },
+  });
+
+  const [addPlantToSeason] = useMutation(ADD_PLANT_TO_SEASON, {
+    onCompleted: (data) => {
+      console.log(data);
+      setIsOpen(false);
+    },
+  });
+
+  const onSubmit = async (data: FieldValues) => {
+    console.log(data);
+    try {
+      await addPlantToSeason({
+        variables: {
+          seasonId: id,
+          name: data.plantName,
+          variety: data.variety,
+        },
+      });
+      reset();
+    } catch (error) {
+      console.error("Mutation error:", error);
+      reset();
+    }
+  };
   if (seasonLoading) return "Loading";
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -64,7 +106,10 @@ export const SeasonPage: React.FC = () => {
       </div>
 
       <div className="flex gap-4">
-        <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
+        <button
+          className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+          onClick={() => setIsOpen(true)}
+        >
           Add New Plant
         </button>
         <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
@@ -85,17 +130,11 @@ export const SeasonPage: React.FC = () => {
             {[1, 2, 3].map((index) => (
               <div
                 key={index}
-                role="group"
-                aria-roledescription="slide"
                 className="min-w-0 shrink-0 grow-0 basis-full pl-4"
               >
                 <img
-                  src="/placeholder.svg"
-                  alt={`Carousel Image ${index}`}
+                  src={seedling}
                   className="w-full h-64 object-cover rounded-lg"
-                  width="500"
-                  height="500"
-                  style={{ aspectRatio: "500 / 500", objectFit: "cover" }}
                 />
               </div>
             ))}
@@ -149,7 +188,13 @@ export const SeasonPage: React.FC = () => {
         <PlantCard plants={allSeasonData?.plants} />
       </div>
 
-      {/*  HERE*/}
+      <NewPlantModal
+        register={register}
+        handleSubmit={handleSubmit}
+        onSubmit={onSubmit}
+        isOpen={isOpen}
+        onClose={setIsOpen}
+      />
     </div>
   );
 };

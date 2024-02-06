@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { NewSeasonModal } from "./modals/NewSeasonModal.tsx";
 import { SeasonCard } from "./SeasonCard.tsx";
 import { useMutation, gql, useQuery } from "@apollo/client";
@@ -27,44 +27,37 @@ const GET_ALL_SEASONS = gql`
   }
 `;
 
-type Inputs = {
-  seasonName: string;
+type Season = {
+  id: string;
+  name: string;
+  plants: { name: string }[];
+  seasonStartDate: string;
+  seasonEndDate: string;
 };
 
-export const MainPage: React.FC<Inputs> = ({ seasonName }) => {
+type AllSeasonData = {
+  getAllSeasons: Season[];
+};
+
+export const MainPage = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const [addSeason, { data, loading, error }] = useMutation(NEW_SEASON, {
+  const [addSeason] = useMutation(NEW_SEASON, {
     onCompleted: (data) => {
       setIsOpen(false);
       navigate(`/season/${data.addSeason.id}`);
     },
   });
 
-  const { data: allSeasonData, loading: allSeasonLoading } = useQuery(
-    GET_ALL_SEASONS,
-    {
-      onCompleted: (data) => {
+  const { data: allSeasonData, loading: allSeasonLoading } =
+    useQuery<AllSeasonData>(GET_ALL_SEASONS, {
+      onCompleted: () => {
         console.log(allSeasonData);
       },
-    },
-  );
+    });
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<Inputs>();
-
-  const handleNewSeason = () => {
-    setIsOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsOpen(false);
-  };
+  const { register, handleSubmit, reset } = useForm();
 
   const onSubmit = async (data: FieldValues) => {
     try {
@@ -89,7 +82,7 @@ export const MainPage: React.FC<Inputs> = ({ seasonName }) => {
       <p className="font-bold float-right underline">Stephan</p>
       <button
         className="font-bold rounded-lg text-lg  w-48 h-16 bg-[#74ae57] text-[#ffffff] flex justify-center items-center"
-        onClick={handleNewSeason}
+        onClick={() => setIsOpen(true)}
       >
         Create New Season
       </button>
@@ -98,11 +91,10 @@ export const MainPage: React.FC<Inputs> = ({ seasonName }) => {
         handleSubmit={handleSubmit}
         onSubmit={onSubmit}
         isOpen={isOpen}
-        onClose={handleCloseModal}
-        addSeason={addSeason}
+        onClose={setIsOpen}
       />
       <div className="mt-[150px] flex justify-around flex-wrap">
-        {allSeasonData.getAllSeasons.map((season) => (
+        {allSeasonData?.getAllSeasons.map((season: Season) => (
           <SeasonCard
             key={season.id}
             id={season.id}

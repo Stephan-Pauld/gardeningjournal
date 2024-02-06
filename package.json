@@ -4,7 +4,11 @@
   "description": "gardening journal with graphql, mongo, react, tailwind",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "cd front && npm run dev",
+    "server": "cd back && node server.js",
+    "install:front": "cd front && npm install",
+    "install:back": "cd back && npm install",
+    "build:front": "cd front && npm run build"
   },
   "author": "",
   "license": "ISC",

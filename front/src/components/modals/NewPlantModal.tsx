@@ -4,7 +4,7 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 
-type NewSeasonModalProps = {
+type NewPlantModalProps = {
   isOpen: boolean;
   onClose: () => void;
   register: UseFormRegister<FieldValues>;
@@ -12,25 +12,31 @@ type NewSeasonModalProps = {
   onSubmit: (data: FieldValues) => void;
 };
 
-export const NewSeasonModal = ({
+export const NewPlantModal = ({
   isOpen,
   onClose,
   register,
   handleSubmit,
   onSubmit,
-}: NewSeasonModalProps) => {
+}: NewPlantModalProps) => {
   if (!isOpen) return null;
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg p-[56px]">
-        <h2 className="text-lg font-bold ">Season Name</h2>
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col m-2 w-[300px]">
+            <h2 className="flex mx-2 text-lg font-bold ">Plant Name:</h2>
             <input
-              {...register("seasonName")}
+              {...register("plantName")}
               className="border border-gray-400 rounded m-2 p-[10px] w-[100%]"
-              placeholder="Eg: Spring or Fall Planters"
+              placeholder="Tomato"
+              type="text"
+            />
+            <h2 className="flex mx-2 text-lg font-bold ">Plant Variety:</h2>
+            <input
+              {...register("variety")}
+              className="border border-gray-400 rounded m-2 p-[10px] w-[100%]"
+              placeholder="Beefsteak"
               type="text"
             />
           </div>

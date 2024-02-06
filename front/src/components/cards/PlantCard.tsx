@@ -1,13 +1,20 @@
-import React from "react";
 import seedling from "../../assets/seedling.png";
 
-export const PlantCard = (props) => {
+export const PlantCard = () => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
       <div className="grid grid-cols-2 gap-4 overflow-y-auto max-h-[500px] items-start justify-center p-[10px]">
         {/* Repeated Cards for Plants */}
-        {["Rose", "Tulip", "Daisy", "Sunflower"].map((plant, index) => (
+        {[
+          "Rose",
+          "Tulip",
+          "Daisy",
+          "Sunflower",
+          "Tomatoes",
+          "sage",
+          "cucumber",
+        ].map((plant, index) => (
           <div
             key={index}
             className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
