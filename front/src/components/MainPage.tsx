@@ -49,7 +49,6 @@ export const MainPage = () => {
       navigate(`/season/${data.addSeason.id}`);
     },
   });
-
   const { data: allSeasonData, loading: allSeasonLoading } =
     useQuery<AllSeasonData>(GET_ALL_SEASONS, {
       onCompleted: () => {
@@ -73,7 +72,8 @@ export const MainPage = () => {
     }
   };
 
-  if (allSeasonLoading) return "Loading";
+  if (!allSeasonData) return "Loading";
+  console.log(allSeasonData);
   return (
     <>
       <button className="float-right ml-[10px] font-bold rounded-[3px] px-[10px] py-[2px] bg-[#ff0000] text-[#ffffff]">

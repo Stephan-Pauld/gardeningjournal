@@ -1,20 +1,22 @@
 import seedling from "../../assets/seedling.png";
 
-export const PlantCard = () => {
+type plantProps = {
+  plants: [];
+};
+type Plant = {
+  harvestDate: string;
+  id: string;
+  name: string;
+  plantingDate: string;
+  variety: string;
+};
+export const PlantCard = ({ plants }: plantProps) => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
       <div className="grid grid-cols-2 gap-4 overflow-y-auto max-h-[500px] items-start justify-center p-[10px]">
         {/* Repeated Cards for Plants */}
-        {[
-          "Rose",
-          "Tulip",
-          "Daisy",
-          "Sunflower",
-          "Tomatoes",
-          "sage",
-          "cucumber",
-        ].map((plant, index) => (
+        {plants.map((plant: Plant, index: number) => (
           <div
             key={index}
             className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
@@ -23,16 +25,20 @@ export const PlantCard = () => {
             <div className="flex flex-col items-center justify-center p-4">
               <img
                 src={seedling}
-                alt={plant}
                 className="w-24 h-24 rounded-full"
                 width="100"
                 height="100"
                 style={{ aspectRatio: "100 / 100", objectFit: "cover" }}
               />
-              <h3 className="text-lg font-bold mt-2">{plant}</h3>
-              <p className="text-sm text-gray-500">
-                Planted on {`${index * 5 + 1}`}st Jan 2024
-              </p>
+              <h3 className="text-lg font-bold mt-2">{plant.name}</h3>
+              <div className="flex justify-around w-[100%]">
+                <p className="text-sm text-gray-500">
+                  Planted on: {plant.plantingDate}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Harvest Date: {plant.plantingDate}
+                </p>
+              </div>
             </div>
           </div>
         ))}
