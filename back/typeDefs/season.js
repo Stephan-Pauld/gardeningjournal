@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express');
 const seasonTypeDefs = gql`
 type Plant {
   id: ID!
-  name: String!
+  name: String
   variety: String
   plantingDate: String
   harvestDate: String
@@ -20,7 +20,7 @@ type Season {
 }
 
 type Query {
-  getAllSeasons: [Season] # Define the missing query
+  getAllSeasons: [Season]
   getSeasonById(id: ID!): Season
 }
 

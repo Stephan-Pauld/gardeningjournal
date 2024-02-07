@@ -46,25 +46,26 @@ export const SeasonPage: React.FC = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const { register, handleSubmit, reset } = useForm();
 
-  const { loading: seasonLoading } = useQuery(GET_SEASON_BY_ID, {
+  const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
     variables: {
       getSeasonById: id,
     },
     onCompleted: (data) => {
       setAllSeasonData(data.getSeasonById);
-      console.log(data.getSeasonById);
     },
   });
 
   const [addPlantToSeason] = useMutation(ADD_PLANT_TO_SEASON, {
-    onCompleted: (data) => {
-      console.log(data);
+    onCompleted: () => {
       setIsOpen(false);
+      refetch().then(({ data }) => {
+        setAllSeasonData(data.getSeasonById);
+      });
     },
+    // Remove refetchQueries if you opt to manually refetch as shown above
   });
 
   const onSubmit = async (data: FieldValues) => {
-    console.log(data);
     try {
       await addPlantToSeason({
         variables: {
@@ -79,6 +80,18 @@ export const SeasonPage: React.FC = () => {
       reset();
     }
   };
+
+  const AddNewPlantButton = () => {
+    return (
+      <button
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+        onClick={() => setIsOpen(true)}
+      >
+        Add New Plant
+      </button>
+    );
+  };
+
   if (seasonLoading) return "Loading";
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -106,12 +119,8 @@ export const SeasonPage: React.FC = () => {
       </div>
 
       <div className="flex gap-4">
-        <button
-          className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-          onClick={() => setIsOpen(true)}
-        >
-          Add New Plant
-        </button>
+        {allSeasonData?.plants.length ? <AddNewPlantButton /> : ""}
+
         <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
           Edit
         </button>
@@ -165,7 +174,6 @@ export const SeasonPage: React.FC = () => {
         </button>
         {/* Next Slide Button */}
         <button className="inline-flex items-center whitespace-nowrap shrink-0 justify-center text-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm font-medium hover:bg-accent hover:text-accent-foreground absolute h-8 w-8 rounded-full -right-12 top-1/2 -translate-y-1/2">
-          {/* SVG for Next Button */}
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="24"
@@ -185,7 +193,11 @@ export const SeasonPage: React.FC = () => {
         </button>
       </div>
       <div>
-        <PlantCard plants={allSeasonData?.plants} />
+        {allSeasonData?.plants.length ? (
+          <PlantCard plants={allSeasonData?.plants} />
+        ) : (
+          <AddNewPlantButton />
+        )}
       </div>
 
       <NewPlantModal

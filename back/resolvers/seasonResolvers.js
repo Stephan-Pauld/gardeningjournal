@@ -9,7 +9,7 @@ const seasonResolvers = {
   Query: {
     getAllSeasons: async () => {
       try {
-        return await Season.find({});
+        return await Season.find({}).populate('plants');
       } catch (error) {
         throw new Error('Failed to fetch seasons');
       }

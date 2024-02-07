@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express');
 const plantTypeDefs = gql`
 type Plant {
   id: ID!
-  name: String!
+  name: String
   variety: String
   plantingDate: String
   harvestDate: String
