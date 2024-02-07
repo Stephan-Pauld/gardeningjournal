@@ -5,6 +5,7 @@ type plantProps = {
   isOpen: boolean;
   onClose: () => void;
   setViewPlant: () => void;
+  setCurrentPlant: () => void;
 };
 type Plant = {
   harvestDate: string;
@@ -13,7 +14,12 @@ type Plant = {
   plantingDate: string;
   variety: string;
 };
-export const PlantCard = ({ plants, isOpen, setViewPlant }: plantProps) => {
+export const PlantCard = ({
+  plants,
+  isOpen,
+  setViewPlant,
+  setCurrentPlant,
+}: plantProps) => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
@@ -23,7 +29,11 @@ export const PlantCard = ({ plants, isOpen, setViewPlant }: plantProps) => {
             key={index}
             className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
             data-v0-t="card"
-            onClick={() => setViewPlant(true)}
+            onClick={() => {
+              setViewPlant(true);
+              setCurrentPlant(plant);
+              console.log(plant);
+            }}
           >
             <div className="flex flex-col items-center justify-center p-4">
               <img

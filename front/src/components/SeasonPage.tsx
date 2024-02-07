@@ -41,11 +41,27 @@ type AllSeasonData = {
   seasonStartDate: string;
 };
 
-export const SeasonPage: React.FC = () => {
+type CurrentPlantData = {
+  harvestDate: string;
+  id: string;
+  name: string;
+  plantingDate: string;
+  variety: string;
+};
+
+export const SeasonPage = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [isViewingPlant, setIsViewingPlant] = useState<boolean>(false);
+  const [currentPlant, setCurrentPlant] = useState<CurrentPlantData>({
+    harvestDate: "",
+    id: "",
+    name: "",
+    plantingDate: "",
+    variety: "",
+  });
+
   const { register, handleSubmit, reset } = useForm();
 
   const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
@@ -200,13 +216,18 @@ export const SeasonPage: React.FC = () => {
             setViewPlant={setIsViewingPlant}
             isOpen={isViewingPlant}
             onClose={setIsViewingPlant}
+            setCurrentPlant={setCurrentPlant}
           />
         ) : (
           <AddNewPlantButton />
         )}
       </div>
 
-      <PlantDetailsModal isOpen={isViewingPlant} onClose={setIsViewingPlant} />
+      <PlantDetailsModal
+        isOpen={isViewingPlant}
+        onClose={setIsViewingPlant}
+        currentPlant={currentPlant}
+      />
 
       <NewPlantModal
         register={register}
