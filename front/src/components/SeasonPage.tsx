@@ -5,6 +5,7 @@ import { gql, useMutation, useQuery } from "@apollo/client";
 import { PlantCard } from "./cards/PlantCard.tsx";
 import seedling from "../assets/seedling.png";
 import { NewPlantModal } from "./modals/NewPlantModal.tsx";
+import { PlantDetailsModal } from "./modals/PlantDetailsModal.tsx";
 
 const GET_SEASON_BY_ID = gql`
   query Query($getSeasonById: ID!) {
@@ -44,6 +45,7 @@ export const SeasonPage: React.FC = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isViewingPlant, setIsViewingPlant] = useState<boolean>(false);
   const { register, handleSubmit, reset } = useForm();
 
   const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
@@ -62,7 +64,6 @@ export const SeasonPage: React.FC = () => {
         setAllSeasonData(data.getSeasonById);
       });
     },
-    // Remove refetchQueries if you opt to manually refetch as shown above
   });
 
   const onSubmit = async (data: FieldValues) => {
@@ -194,11 +195,18 @@ export const SeasonPage: React.FC = () => {
       </div>
       <div>
         {allSeasonData?.plants.length ? (
-          <PlantCard plants={allSeasonData?.plants} />
+          <PlantCard
+            plants={allSeasonData?.plants}
+            setViewPlant={setIsViewingPlant}
+            isOpen={isViewingPlant}
+            onClose={setIsViewingPlant}
+          />
         ) : (
           <AddNewPlantButton />
         )}
       </div>
+
+      <PlantDetailsModal isOpen={isViewingPlant} onClose={setIsViewingPlant} />
 
       <NewPlantModal
         register={register}
