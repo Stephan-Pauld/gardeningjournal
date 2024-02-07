@@ -50,11 +50,7 @@ export const MainPage = () => {
     },
   });
   const { data: allSeasonData, loading: allSeasonLoading } =
-    useQuery<AllSeasonData>(GET_ALL_SEASONS, {
-      onCompleted: () => {
-        console.log(allSeasonData);
-      },
-    });
+    useQuery<AllSeasonData>(GET_ALL_SEASONS);
 
   const { register, handleSubmit, reset } = useForm();
 
@@ -73,7 +69,6 @@ export const MainPage = () => {
   };
 
   if (!allSeasonData) return "Loading";
-  console.log(allSeasonData);
   return (
     <>
       <button className="float-right ml-[10px] font-bold rounded-[3px] px-[10px] py-[2px] bg-[#ff0000] text-[#ffffff]">

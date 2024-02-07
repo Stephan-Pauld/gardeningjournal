@@ -2,6 +2,10 @@ import seedling from "../../assets/seedling.png";
 
 type plantProps = {
   plants: [];
+  isOpen: boolean;
+  onClose: () => void;
+  setViewPlant: () => void;
+  setCurrentPlant: () => void;
 };
 type Plant = {
   harvestDate: string;
@@ -10,17 +14,26 @@ type Plant = {
   plantingDate: string;
   variety: string;
 };
-export const PlantCard = ({ plants }: plantProps) => {
+export const PlantCard = ({
+  plants,
+  isOpen,
+  setViewPlant,
+  setCurrentPlant,
+}: plantProps) => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
       <div className="grid grid-cols-2 gap-4 overflow-y-auto max-h-[500px] items-start justify-center p-[10px]">
-        {/* Repeated Cards for Plants */}
         {plants.map((plant: Plant, index: number) => (
           <div
             key={index}
             className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
             data-v0-t="card"
+            onClick={() => {
+              setViewPlant(true);
+              setCurrentPlant(plant);
+              console.log(plant);
+            }}
           >
             <div className="flex flex-col items-center justify-center p-4">
               <img
