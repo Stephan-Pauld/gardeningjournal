@@ -188,7 +188,7 @@ export const SeasonPage = () => {
       // had a brutal time dealing with the promise for the toast...
       await toast.promise(plantUpdatePromise, {
         pending: "Updating plant...🌱",
-        success: "Plant successfully updates 🪴",
+        success: "Plant successfully updated 🪴",
         error: "Failed to update plant 😞",
       });
     } catch (error) {
