@@ -4,6 +4,8 @@ import { SeasonCard } from "./SeasonCard.tsx";
 import { useMutation, gql, useQuery } from "@apollo/client";
 import { FieldValues, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const NEW_SEASON = gql`
   mutation Mutation($name: String!) {
@@ -47,24 +49,39 @@ export const MainPage = () => {
     onCompleted: (data) => {
       setIsOpen(false);
       navigate(`/season/${data.addSeason.id}`);
+      reset();
     },
   });
-  const { data: allSeasonData, loading: allSeasonLoading } =
-    useQuery<AllSeasonData>(GET_ALL_SEASONS);
+  const { data: allSeasonData } = useQuery<AllSeasonData>(GET_ALL_SEASONS);
 
   const { register, handleSubmit, reset } = useForm();
 
   const onSubmit = async (data: FieldValues) => {
     try {
-      await addSeason({
-        variables: {
-          name: data.seasonName,
-        },
+      const seasonPromise = new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const result = await addSeason({
+              variables: {
+                name: data.seasonName,
+              },
+            });
+            reset();
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        }, 1000); // Fake Delay for dev, might keep..
       });
-      reset();
+
+      // had a brutal time dealing with the promise for the toast...
+      await toast.promise(seasonPromise, {
+        pending: "Adding new season...☀️",
+        success: "Season added successfully 🌞",
+        error: "Failed to add season ❄️",
+      });
     } catch (error) {
       console.error("Mutation error:", error);
-      reset();
     }
   };
 
@@ -100,6 +117,18 @@ export const MainPage = () => {
           />
         ))}
       </div>
+      <ToastContainer
+        position="bottom-center"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
     </>
   );
 };
