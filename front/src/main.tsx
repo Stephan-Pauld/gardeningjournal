@@ -6,6 +6,8 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { MainPage } from "./components/MainPage.tsx";
 import { SeasonPage } from "./components/SeasonPage.tsx";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
@@ -25,8 +27,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ApolloProvider client={client}>
-      <RouterProvider router={router} />
-    </ApolloProvider>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <ApolloProvider client={client}>
+        <RouterProvider router={router} />
+      </ApolloProvider>
+    </LocalizationProvider>
   </React.StrictMode>,
 );

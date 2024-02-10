@@ -64,10 +64,10 @@ type AllSeasonData = {
 };
 
 type CurrentPlantData = {
-  harvestDate: string;
+  harvestDate: date | null;
   id: string;
   name: string;
-  plantingDate: string;
+  plantingDate: date | null;
   variety: string;
 };
 
@@ -191,6 +191,7 @@ export const SeasonPage = () => {
         success: "Plant successfully updated 🪴",
         error: "Failed to update plant 😞",
       });
+      reset();
     } catch (error) {
       console.error("Mutation error:", error);
     }
@@ -202,19 +203,29 @@ export const SeasonPage = () => {
 
   const handlePlantSelect = (plant: CurrentPlantData) => {
     setPlantView({ ...plantView, currentPlant: { ...plant }, isOpen: true });
+    setValue("variety", plant.variety);
+    setValue("plantingDate", plant.plantingDate);
+    setValue("name", plant.name);
+    setValue("harvestDate", plant.harvestDate);
+    setValue("id", plant.id);
   };
 
   const plantModalClose = () => {
     setPlantView({ ...plantView, isOpen: false, isEditing: false });
   };
   const handleEditPlant = () => {
-    setValue("variety", plantView.currentPlant.variety);
-    setValue("plantingDate", plantView.currentPlant.plantingDate);
-    setValue("name", plantView.currentPlant.name);
-    setValue("harvestDate", plantView.currentPlant.harvestDate);
-    setValue("id", plantView.currentPlant.id);
-
     setPlantView({ ...plantView, isEditing: true, isOpen: false });
+  };
+
+  const handlePlantDates = (plantOrHarvest: string, date: date | null) => {
+    if (!date) return;
+    const formattedDate = date.format("YYYY-MM-DD");
+    if (plantOrHarvest === "plantDate") {
+      setValue("plantingDate", formattedDate);
+    }
+    if (plantOrHarvest === "harvestDate") {
+      setValue("harvestDate", formattedDate);
+    }
   };
 
   const AddNewPlantButton = () => {
@@ -255,8 +266,6 @@ export const SeasonPage = () => {
       </div>
 
       <div className="flex gap-4">
-        {allSeasonData?.plants.length ? <AddNewPlantButton /> : ""}
-
         <button className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2">
           Edit
         </button>
@@ -295,6 +304,7 @@ export const SeasonPage = () => {
         isEditing={plantView.isEditing}
         onClose={plantModalClose}
         currentPlant={plantView.currentPlant}
+        handlePlantDates={handlePlantDates}
       />
 
       <ToastContainer
