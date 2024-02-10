@@ -2,11 +2,9 @@ import seedling from "../../assets/seedling.png";
 
 type plantProps = {
   plants: [];
-  isOpen: boolean;
-  onClose: () => void;
-  setViewPlant: () => void;
-  setCurrentPlant: () => void;
+  handlePlantSelect: (plant) => void;
 };
+
 type Plant = {
   harvestDate: string;
   id: string;
@@ -16,9 +14,7 @@ type Plant = {
 };
 export const PlantCard = ({
   plants,
-  isOpen,
-  setViewPlant,
-  setCurrentPlant,
+  handlePlantSelect
 }: plantProps) => {
   return (
     <>
@@ -29,11 +25,7 @@ export const PlantCard = ({
             key={index}
             className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
             data-v0-t="card"
-            onClick={() => {
-              setViewPlant(true);
-              setCurrentPlant(plant);
-              console.log(plant);
-            }}
+            onClick={() => handlePlantSelect(plant)}
           >
             <div className="flex flex-col items-center justify-center p-4">
               <img
@@ -49,7 +41,7 @@ export const PlantCard = ({
                   Planted on: {plant.plantingDate}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Harvest Date: {plant.plantingDate}
+                  Harvest Date: {plant.harvestDate}
                 </p>
               </div>
             </div>

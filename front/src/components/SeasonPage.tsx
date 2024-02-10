@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { PlantCard } from "./cards/PlantCard.tsx";
 import seedling from "../assets/seedling.png";
-import { NewPlantModal } from "./modals/NewPlantModal.tsx";
-import { PlantDetailsModal } from "./modals/PlantDetailsModal.tsx";
+import { NewPlantModal } from "./modals/plants/NewPlantModal.tsx";
+import { EditPlantModal } from "./modals/plants/EditPlantModal.tsx";
+import { PlantDetailsModal } from "./modals/plants/PlantDetailsModal.tsx";
 
 const GET_SEASON_BY_ID = gql`
   query Query($getSeasonById: ID!) {
@@ -33,6 +34,14 @@ const ADD_PLANT_TO_SEASON = gql`
   }
 `;
 
+const EDIT_PLANT = gql`
+mutation Mutation($updatePlantId: ID!, $name: String, $variety: String, $plantingDate: String, $harvestDate: String) {
+  updatePlant(id: $updatePlantId, name: $name, variety: $variety, plantingDate: $plantingDate, harvestDate: $harvestDate) {
+    id
+  }
+}
+`;
+
 type AllSeasonData = {
   name: string;
   notes: string[];
@@ -49,20 +58,37 @@ type CurrentPlantData = {
   variety: string;
 };
 
+type PlantView = {
+  currentPlant: CurrentPlantData;
+  isEditing: boolean;
+  isOpen: boolean;
+}
+
 export const SeasonPage = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
-  const [isOpen, setIsOpen] = useState<boolean>(false);
-  const [isViewingPlant, setIsViewingPlant] = useState<boolean>(false);
-  const [currentPlant, setCurrentPlant] = useState<CurrentPlantData>({
+  const [creatingNewPlant, setCreatingNewPlant] = useState<boolean>(false);
+  const [plantView, setPlantView] = useState<PlantView>({ 
+    currentPlant: {
     harvestDate: "",
     id: "",
     name: "",
     plantingDate: "",
     variety: "",
-  });
+  },
+  isEditing: false,
+  isOpen: false
+});
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue, getValues} = useForm({
+    defaultValues: {
+      id:"",
+      harvestDate: "",
+      name: "",
+      plantingDate: "",
+      variety: ""
+  }
+});
 
   const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
     variables: {
@@ -75,14 +101,26 @@ export const SeasonPage = () => {
 
   const [addPlantToSeason] = useMutation(ADD_PLANT_TO_SEASON, {
     onCompleted: () => {
-      setIsOpen(false);
+      setCreatingNewPlant(false);
       refetch().then(({ data }) => {
+        
+        
         setAllSeasonData(data.getSeasonById);
       });
     },
   });
 
-  const onSubmit = async (data: FieldValues) => {
+  const [updatePlant] = useMutation(EDIT_PLANT, {
+    onCompleted: () => {
+      refetch().then(({ data }) => {
+        setAllSeasonData(data.getSeasonById);
+        plantModalClose();
+      });
+    },
+  });
+
+  
+  const addNewPlant = async (data: FieldValues) => {    
     try {
       await addPlantToSeason({
         variables: {
@@ -98,11 +136,48 @@ export const SeasonPage = () => {
     }
   };
 
+  const editPlant = async (data: FieldValues) => {
+    try {
+      await updatePlant({
+        variables: {
+          "updatePlantId": data.id,
+          "name": data.name,
+          "variety": data.variety,
+          "plantingDate": data.plantingDate,
+          "harvestDate": data.harvestDate
+        },
+      });
+    } catch (error) {
+      
+    }
+  }
+
+  const handleNewPlantClose = () => {
+    setCreatingNewPlant(false)
+  }
+
+  const handlePlantSelect = (plant) => {
+    setPlantView({...plantView, currentPlant:{...plant}, isOpen:true,})
+  }
+  
+  const plantModalClose = () => {
+    setPlantView({...plantView, isOpen:false, isEditing:false})
+  }
+  const handleEditPlant = () => {
+    setValue("variety",plantView.currentPlant.variety)
+    setValue("plantingDate", plantView.currentPlant.plantingDate)
+    setValue("name", plantView.currentPlant.name)
+    setValue("harvestDate", plantView.currentPlant.harvestDate)
+    setValue("id", plantView.currentPlant.id)
+
+    setPlantView({...plantView, isEditing: true, isOpen:false})
+  }
+  
   const AddNewPlantButton = () => {
     return (
       <button
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-        onClick={() => setIsOpen(true)}
+        onClick={() => setCreatingNewPlant(true)}
       >
         Add New Plant
       </button>
@@ -213,28 +288,36 @@ export const SeasonPage = () => {
         {allSeasonData?.plants.length ? (
           <PlantCard
             plants={allSeasonData?.plants}
-            setViewPlant={setIsViewingPlant}
-            isOpen={isViewingPlant}
-            onClose={setIsViewingPlant}
-            setCurrentPlant={setCurrentPlant}
+            handlePlantSelect={handlePlantSelect}
           />
         ) : (
           <AddNewPlantButton />
         )}
       </div>
 
-      <PlantDetailsModal
-        isOpen={isViewingPlant}
-        onClose={setIsViewingPlant}
-        currentPlant={currentPlant}
-      />
-
       <NewPlantModal
         register={register}
         handleSubmit={handleSubmit}
-        onSubmit={onSubmit}
-        isOpen={isOpen}
-        onClose={setIsOpen}
+        addNewPlant={addNewPlant}
+        isOpen={creatingNewPlant}
+        handleNewPlantClose={handleNewPlantClose}
+      />
+
+      <PlantDetailsModal
+        isOpen={plantView.isOpen}
+        onClose={plantModalClose}
+        currentPlant={plantView.currentPlant}
+        handleEditPlant={handleEditPlant}
+      />
+
+      <EditPlantModal
+        register={register}
+        handleSubmit={handleSubmit}
+        editPlant={editPlant}
+        isOpen={plantView.isOpen}
+        isEditing={plantView.isEditing}
+        onClose={plantModalClose}
+        currentPlant={plantView.currentPlant}
       />
     </div>
   );
