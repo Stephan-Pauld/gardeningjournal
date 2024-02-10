@@ -6,24 +6,24 @@ import {
 
 type NewPlantModalProps = {
   isOpen: boolean;
-  onClose: () => void;
+  handleNewPlantClose: () => void;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
-  onSubmit: (data: FieldValues) => void;
+  addNewPlant: (data: FieldValues) => void;
 };
 
 export const NewPlantModal = ({
   isOpen,
-  onClose,
   register,
   handleSubmit,
-  onSubmit,
+  handleNewPlantClose,
+  addNewPlant,
 }: NewPlantModalProps) => {
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg p-[56px]">
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(addNewPlant)}>
           <div className="flex flex-col m-2 w-[300px]">
             <h2 className="flex mx-2 text-lg font-bold ">Plant Name:</h2>
             <input
@@ -47,7 +47,7 @@ export const NewPlantModal = ({
             />
             <button
               className="bg-red-500 px-6 py-2 rounded-[3px] font-medium"
-              onClick={() => onClose(false)}
+              onClick={handleNewPlantClose}
             >
               Cancel
             </button>
