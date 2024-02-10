@@ -12,14 +12,11 @@ type Plant = {
   plantingDate: string;
   variety: string;
 };
-export const PlantCard = ({
-  plants,
-  handlePlantSelect
-}: plantProps) => {
+export const PlantCard = ({ plants, handlePlantSelect }: plantProps) => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
-      <div className="grid grid-cols-2 gap-4 overflow-y-auto max-h-[500px] items-start justify-center p-[10px]">
+      <div className="grid grid-cols-2 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[10px]">
         {plants.map((plant: Plant, index: number) => (
           <div
             key={index}
