@@ -1,101 +1,36 @@
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { PlantCard } from "./cards/PlantCard.tsx";
 import { NewPlantModal } from "./modals/plants/NewPlantModal.tsx";
 import { EditPlantModal } from "./modals/plants/EditPlantModal.tsx";
 import { EditSeason } from "./modals/season/EditSeason.tsx";
 import { PlantDetailsModal } from "./modals/plants/PlantDetailsModal.tsx";
 import { ToastContainer, toast } from "react-toastify";
+import { Note } from "./cards/Note.tsx";
 import "react-toastify/dist/ReactToastify.css";
-
-const GET_SEASON_BY_ID = gql`
-  query GetSeasonById($getSeasonById: ID!) {
-    getSeasonById(id: $getSeasonById) {
-      id
-      lastFrostDate
-      name
-      notes {
-        content
-        createdAt
-        id
-      }
-      plantingZone
-      seasonEndDate
-      plants {
-        harvestDate
-        id
-        name
-        plantingDate
-        variety
-      }
-    }
-  }
-`;
-
-const UPDATE_SEASON = gql`
-  mutation Mutation(
-    $updateSeasonId: ID!
-    $name: String
-    $plantingZone: String
-    $lastFrostDate: String
-    $seasonEndDate: String
-  ) {
-    updateSeason(
-      id: $updateSeasonId
-      name: $name
-      plantingZone: $plantingZone
-      lastFrostDate: $lastFrostDate
-      seasonEndDate: $seasonEndDate
-    ) {
-      id
-    }
-  }
-`;
-
-const ADD_PLANT_TO_SEASON = gql`
-  mutation Mutation($seasonId: ID!, $name: String!, $variety: String) {
-    addPlantToSeason(seasonId: $seasonId, name: $name, variety: $variety) {
-      id
-    }
-  }
-`;
-
-const EDIT_PLANT = gql`
-  mutation Mutation(
-    $updatePlantId: ID!
-    $name: String
-    $variety: String
-    $plantingDate: String
-    $harvestDate: String
-  ) {
-    updatePlant(
-      id: $updatePlantId
-      name: $name
-      variety: $variety
-      plantingDate: $plantingDate
-      harvestDate: $harvestDate
-    ) {
-      id
-    }
-  }
-`;
+import { GET_SEASON_BY_ID } from "../graphQL/queries.ts";
+import {
+  UPDATE_SEASON,
+  ADD_PLANT_TO_SEASON,
+  EDIT_PLANT,
+} from "../graphQL/mutations.ts";
 
 type AllSeasonData = {
   name: string;
   notes: string[];
   plants: [];
-  seasonEndDate: date | null;
-  lastFrostDate: date | null;
+  seasonEndDate: Date | null;
+  lastFrostDate: Date | null;
   plantingZone: string;
 };
 
 type CurrentPlantData = {
-  harvestDate: date | null;
+  harvestDate: Date | null;
   id: string;
   name: string;
-  plantingDate: date | null;
+  plantingDate: Date | null;
   variety: string;
 };
 
@@ -109,13 +44,15 @@ export const SeasonPage = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
   const [creatingNewPlant, setCreatingNewPlant] = useState<boolean>(false);
+  const [creatingNewJournalEntry, setCreatingNewJournalEntry] =
+    useState<boolean>(false);
   const [isEditingSeason, setIsEditingSeason] = useState<boolean>(false);
   const [plantView, setPlantView] = useState<PlantView>({
     currentPlant: {
-      harvestDate: "",
+      harvestDate: null,
       id: "",
       name: "",
-      plantingDate: "",
+      plantingDate: null,
       variety: "",
     },
     isEditing: false,
@@ -166,6 +103,7 @@ export const SeasonPage = () => {
       });
     },
   });
+  console.log(allSeasonData);
 
   const addNewPlant = async (data: FieldValues) => {
     try {
@@ -266,7 +204,7 @@ export const SeasonPage = () => {
     setPlantView({ ...plantView, isEditing: true, isOpen: false });
   };
 
-  const handlePlantDates = (plantOrHarvest: string, date: date | null) => {
+  const handlePlantDates = (plantOrHarvest: string, date: Date | null) => {
     if (!date) return;
     const formattedDate = date.format("YYYY-MM-DD");
     if (plantOrHarvest === "plantDate") {
@@ -277,7 +215,7 @@ export const SeasonPage = () => {
     }
   };
 
-  const handleSeasonDates = (seasonDate: string, date: date | null) => {
+  const handleSeasonDates = (seasonDate: string, date: Date | null) => {
     if (!date) return;
     const formattedDate = date.format("YYYY-MM-DD");
     if (seasonDate === "lastFrost") {
@@ -288,51 +226,48 @@ export const SeasonPage = () => {
     }
   };
 
-  const AddNewPlantButton = () => {
+  const AddNewPlantButton = ({ text, state }) => {
     return (
       <button
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-        onClick={() => setCreatingNewPlant(true)}
+        onClick={() => state(true)}
       >
-        Add New Plant
+        {text}
       </button>
     );
   };
 
   if (seasonLoading) return "Loading";
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h1 className="text-5xl font-bold tracking-tighter">
-          {allSeasonData?.name}
-        </h1>
-        <div className="flex justify-around mt-10">
-          <h3 className="text-xl font-semibold tracking-tighter">
-            Plants: {allSeasonData?.plants.length}
-          </h3>
-          <h3 className="text-xl font-semibold tracking-tighter">
-            Last Frost:{" "}
-            {allSeasonData?.lastFrostDate
-              ? allSeasonData?.lastFrostDate
-              : "Not Specified"}
-          </h3>
-          <h3 className="text-xl font-semibold tracking-tighter">
-            Last Harvest:{" "}
-            {allSeasonData?.seasonEndDate
-              ? allSeasonData?.seasonEndDate
-              : "Not Ended"}
-          </h3>
-        </div>
-      </div>
-
-      <div className="flex gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+      <div className="p-[14px]">
         <button
           onClick={() => setIsEditingSeason(true)}
           className="rounded-md text-sm font-medium border
           border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
         >
-          Edit
+          Edit Season
         </button>
+        <h1 className="text-5xl font-bold tracking-tighter text-center">
+          {allSeasonData?.name}
+        </h1>
+      </div>
+      <div className="flex justify-between p-[14px] w-[75%] items-center mt-[25px]">
+        <h3 className="text-xl font-semibold tracking-tighter">
+          Plants: {allSeasonData?.plants.length}
+        </h3>
+        <h3 className="text-xl font-semibold tracking-tighter">
+          Last Frost:{" "}
+          {allSeasonData?.lastFrostDate
+            ? allSeasonData?.lastFrostDate
+            : "Not Specified"}
+        </h3>
+        <h3 className="text-xl font-semibold tracking-tighter">
+          Last Harvest:{" "}
+          {allSeasonData?.seasonEndDate
+            ? allSeasonData?.seasonEndDate
+            : "Not Ended"}
+        </h3>
       </div>
       <div>
         {allSeasonData?.plants.length ? (
@@ -342,10 +277,19 @@ export const SeasonPage = () => {
             setCreatingNewPlant={setCreatingNewPlant}
           />
         ) : (
-          <AddNewPlantButton />
+          <AddNewPlantButton text="Add New Plant" state={setCreatingNewPlant} />
         )}
       </div>
-
+      <div>
+        {allSeasonData?.notes.length ? (
+          <Note notes={allSeasonData?.notes} />
+        ) : (
+          <AddNewPlantButton
+            text="New Journal Entry"
+            state={setCreatingNewJournalEntry}
+          />
+        )}
+      </div>
       <NewPlantModal
         register={register}
         handleSubmit={handleSubmit}
