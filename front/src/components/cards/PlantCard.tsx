@@ -21,20 +21,22 @@ export const PlantCard = ({
 }: plantProps) => {
   return (
     <>
-      <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
-      <button
-        onClick={() => setCreatingNewPlant(true)}
-        className="rounded-md text-sm font-medium border
-       border-input bg-background hover:bg-accent hover:text-accent-foreground
-       h-10 px-4 py-2"
-      >
-        Add New Plant
-      </button>
+      <div className="flex justify-between p-[10px] w-fit">
+        <h2 className="text-2xl font-bold text-left mr-[30px]">My Plants</h2>
+        <button
+          onClick={() => setCreatingNewPlant(true)}
+          className="rounded-md text-sm font-medium border
+        border-input bg-background hover:bg-accent hover:text-accent-foreground
+        h-10 px-4 py-2 "
+        >
+          Add New Plant
+        </button>
+      </div>
       <div className="grid grid-cols-2 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[10px]">
         {plants.map((plant: Plant, index: number) => (
           <div
             key={index}
-            className="rounded-lg border bg-card text-card-foreground shadow-sm shadow-[4px_4px_6px_1px_#00625a66]"
+            className="rounded-lg border shadow-[4px_4px_6px_1px_#00625a66]"
             data-v0-t="card"
             onClick={() => handlePlantSelect(plant)}
           >
