@@ -23,7 +23,7 @@ const GET_ALL_SEASONS = gql`
       plants {
         name
       }
-      seasonStartDate
+      lastFrostDate
       seasonEndDate
     }
   }

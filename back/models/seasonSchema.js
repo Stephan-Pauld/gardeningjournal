@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const seasonSchema = new mongoose.Schema({
   name:String,
-  seasonStartDate: String,
+  plantingZone:String,
+  lastFrostDate: String,
   seasonEndDate: String,
   notes: [String],
   plants: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Plant' }]

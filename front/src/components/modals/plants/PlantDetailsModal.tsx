@@ -19,7 +19,7 @@ export const PlantDetailsModal = ({
   isOpen,
   onClose,
   currentPlant,
-  handleEditPlant
+  handleEditPlant,
 }: PlantDetailModalProps) => {
   if (!isOpen) return null;
   return (
@@ -31,10 +31,13 @@ export const PlantDetailsModal = ({
 
         <div className="w-[400px] h-[400px]">
           <div className="flex justify-between m-4 text-2xl">
-            <GrEdit 
-            onClick={handleEditPlant}
-            style={{ cursor: "pointer" }} 
-            />
+            <div
+              onClick={handleEditPlant}
+              className="flex items-center cursor-pointer"
+            >
+              <GrEdit />
+              <p className="text-sm font-bold">edit</p>
+            </div>
             <IoCloseCircle
               style={{ cursor: "pointer" }}
               onClick={() => onClose(false)}
