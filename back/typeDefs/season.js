@@ -1,13 +1,19 @@
 const { gql } = require('apollo-server-express');
 
 const seasonTypeDefs = gql`
+type Note {
+  id: ID!
+  content: String!
+  createdAt: String!
+}
+
 type Plant {
   id: ID!
   name: String
   variety: String
   plantingDate: String
   harvestDate: String
-  notes: String
+  notes: [Note]
 }
 
 type Season {
@@ -16,7 +22,7 @@ type Season {
   plantingZone: String
   lastFrostDate: String
   seasonEndDate: String
-  notes: [String]
+  notes: [Note]
   plants: [Plant]
 }
 
@@ -26,12 +32,9 @@ type Query {
 }
 
 type Mutation {
-  addSeason(name: String!, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
-  updateSeason(id: ID!, name: String, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
+  addSeason(name: String!, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [ID], plants: [ID]): Season
+  updateSeason(id: ID!, name: String, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [ID], plants: [ID]): Season
 }
 `;
 
 module.exports = seasonTypeDefs;
-
-
-
