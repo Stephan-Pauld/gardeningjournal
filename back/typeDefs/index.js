@@ -1,7 +1,7 @@
 const plantTypeDefs = require('./plant');
 const seasonTypeDefs = require('./season');
+const noteTypeDefs = require('./note');
 
-// Use array, string, or other methods to combine typeDefs
-const typeDefs = [plantTypeDefs,seasonTypeDefs];
+const typeDefs = [plantTypeDefs, seasonTypeDefs, noteTypeDefs];
 
 module.exports = typeDefs;

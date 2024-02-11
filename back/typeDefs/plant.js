@@ -1,23 +1,29 @@
 const { gql } = require('apollo-server-express');
 
 const plantTypeDefs = gql`
+type Note {
+  id: ID!
+  content: String!
+  createdAt: String!
+}
+
 type Plant {
   id: ID!
   name: String
   variety: String
   plantingDate: String
   harvestDate: String
-  notes: String
+  notes: [Note]
 }
-
-  type Query {
+  
+type Query {
     getAllPlants: [Plant]
     getPlantById(id: ID!): Plant
   }
   
 type Mutation {
-  addPlantToSeason(name: String!, variety: String, plantingDate: String, harvestDate: String, notes: String, seasonId: ID!): Plant
-  updatePlant(id: ID!, name: String, variety: String, plantingDate: String, harvestDate: String, notes: String): Plant
+  addPlantToSeason(name: String!, variety: String, plantingDate: String, harvestDate: String, notes: [ID], seasonId: ID!): Plant
+  updatePlant(id: ID!, name: String, variety: String, plantingDate: String, harvestDate: String, notes: [ID]): Plant
 }
 `;
 

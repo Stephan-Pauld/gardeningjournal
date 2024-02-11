@@ -3,6 +3,7 @@ import seedling from "../../assets/seedling.png";
 type plantProps = {
   plants: [];
   handlePlantSelect: (plant) => void;
+  setCreatingNewPlant: (boolean: boolean) => void;
 };
 
 type Plant = {
@@ -12,11 +13,17 @@ type Plant = {
   plantingDate: string;
   variety: string;
 };
-export const PlantCard = ({ plants, handlePlantSelect }: plantProps) => {
+
+export const PlantCard = ({
+  plants,
+  handlePlantSelect,
+  setCreatingNewPlant,
+}: plantProps) => {
   return (
     <>
       <h2 className="text-2xl font-bold my-[30px]">My Plants</h2>
       <button
+        onClick={() => setCreatingNewPlant(true)}
         className="rounded-md text-sm font-medium border
        border-input bg-background hover:bg-accent hover:text-accent-foreground
        h-10 px-4 py-2"

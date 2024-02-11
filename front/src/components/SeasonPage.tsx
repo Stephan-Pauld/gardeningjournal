@@ -11,12 +11,16 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const GET_SEASON_BY_ID = gql`
-  query Query($getSeasonById: ID!) {
+  query GetSeasonById($getSeasonById: ID!) {
     getSeasonById(id: $getSeasonById) {
       id
       lastFrostDate
       name
-      notes
+      notes {
+        content
+        createdAt
+        id
+      }
       plantingZone
       seasonEndDate
       plants {
@@ -335,6 +339,7 @@ export const SeasonPage = () => {
           <PlantCard
             plants={allSeasonData?.plants}
             handlePlantSelect={handlePlantSelect}
+            setCreatingNewPlant={setCreatingNewPlant}
           />
         ) : (
           <AddNewPlantButton />
