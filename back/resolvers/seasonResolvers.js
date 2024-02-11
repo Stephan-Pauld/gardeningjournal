@@ -25,21 +25,21 @@ const seasonResolvers = {
     },
   },
   Mutation: {
-    addSeason: async (_, { name, seasonStartDate, seasonEndDate, notes, plants }) => {
+    addSeason: async (_, { name, plantingZone, lastFrostDate, seasonEndDate, notes, plants }) => {
       try {
-        const newSeason = new Season({ name, seasonStartDate, seasonEndDate, notes, plants });
+        const newSeason = new Season({ name, plantingZone, lastFrostDate, seasonEndDate, notes, plants });
         return await newSeason.save();
       } catch (error) {
         console.log("err?",error)
         throw new Error('Failed to add season');
       }
     },
-    updateSeason: async (_, { id, name, seasonStartDate, seasonEndDate, notes, plants }) => {
+    updateSeason: async (_, { id, name, plantingZone, lastFrostDate, seasonEndDate, notes, plants }) => {
 
       try {
         const updatedSeason = await Season.findByIdAndUpdate(
           id,
-          { name, seasonStartDate, seasonEndDate, notes, plants },
+          { name, plantingZone, lastFrostDate, seasonEndDate, notes, plants },
           { new: true }
         );
         return updatedSeason;

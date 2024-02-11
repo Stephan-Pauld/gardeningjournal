@@ -13,7 +13,8 @@ type Plant {
 type Season {
   id: ID!
   name: String!
-  seasonStartDate: String
+  plantingZone: String
+  lastFrostDate: String
   seasonEndDate: String
   notes: [String]
   plants: [Plant]
@@ -25,8 +26,8 @@ type Query {
 }
 
 type Mutation {
-  addSeason(name: String!, seasonStartDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
-  updateSeason(id: ID!, name: String, seasonStartDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
+  addSeason(name: String!, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
+  updateSeason(id: ID!, name: String, plantingZone: String,lastFrostDate: String, seasonEndDate: String, notes: [String], plants: [ID]): Season
 }
 `;
 
