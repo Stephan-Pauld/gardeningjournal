@@ -5,13 +5,14 @@
   "main": "index.js",
   "scripts": {
     "dev": "cd front && npm run dev",
-    "server": "cd back && node server.js",
+    "server": "cd back && node server.ts",
     "install:front": "cd front && npm install",
     "install:back": "cd back && npm install",
     "build:front": "cd front && npm run build"
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "devDependencies": {
+    "typescript": "^5.3.3"
   }
 }
