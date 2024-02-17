@@ -1,8 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.noteTypeDefs = void 0;
-const apollo_server_express_1 = require("apollo-server-express");
-const noteTypeDefs = (0, apollo_server_express_1.gql) `
+import { gql } from "apollo-server-express";
+
+const noteTypeDefs = gql`
   type Note {
     id: ID!
     content: String!
@@ -22,4 +20,5 @@ const noteTypeDefs = (0, apollo_server_express_1.gql) `
     addNoteToPlant(plantId: ID!, content: String!): Note!
   }
 `;
-exports.noteTypeDefs = noteTypeDefs;
+
+export { noteTypeDefs };

@@ -1,114 +1,115 @@
-const Season = require('../models/seasonSchema');
-const Plant = require('../models/plantSchema');
-const Note = require('../models/notesSchema');
-
-const noteResolvers = {
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.noteResolvers = void 0;
+const seasonSchema_1 = require("../models/seasonSchema");
+const plantSchema_1 = require("../models/plantSchema");
+const notesSchema_1 = require("../models/notesSchema");
+exports.noteResolvers = {
     Query: {
         // Retrieve all notes
-        notes: async () => {
+        notes: () => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const notes = await Note.find();
-                return notes;
-            } catch (err) {
-                throw new Error(err);
+                return yield notesSchema_1.Note.find();
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
         // Retrieve a note by ID
-        note: async (_, { noteId }) => {
+        note: (_, { noteId }) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const note = await Note.findById(noteId);
+                const note = yield notesSchema_1.Note.findById(noteId);
                 if (!note) {
-                    throw new Error('Note not found');
+                    throw new Error("Note not found");
                 }
                 return note;
-            } catch (err) {
-                throw new Error(err);
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
     },
     Mutation: {
         // Create a new note
-        createNote: async (_, { content }) => {
-            const newNote = new Note({
+        createNote: (_, { content }) => __awaiter(void 0, void 0, void 0, function* () {
+            const newNote = new notesSchema_1.Note({
                 content,
             });
-
             try {
-                const note = await newNote.save();
-                return note;
-            } catch (err) {
-                throw new Error(err);
+                return yield newNote.save();
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
         // Update a note by ID
-        updateNote: async (_, { noteId, content }) => {
+        updateNote: (_, { noteId, content }) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const updatedNote = await Note.findByIdAndUpdate(
-                    noteId,
-                    { content },
-                    { new: true }
-                );
+                const updatedNote = yield notesSchema_1.Note.findByIdAndUpdate(noteId, { content }, { new: true });
                 if (!updatedNote) {
-                    throw new Error('Note not found');
+                    throw new Error("Note not found");
                 }
                 return updatedNote;
-            } catch (err) {
-                throw new Error(err);
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
         // Delete a note by ID
-        deleteNote: async (_, { noteId }) => {
+        deleteNote: (_, { noteId }) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const note = await Note.findByIdAndDelete(noteId);
+                const note = yield notesSchema_1.Note.findByIdAndDelete(noteId);
                 if (!note) {
-                    throw new Error('Note not found');
+                    throw new Error("Note not found");
                 }
-                return 'Note deleted successfully';
-            } catch (err) {
-                throw new Error(err);
+                return "Note deleted successfully";
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
         // Add a note to a season
-        addNoteToSeason: async (_, { seasonId, content }) => {
+        addNoteToSeason: (_, { seasonId, content }) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const newNote = new Note({
+                const newNote = new notesSchema_1.Note({
                     content,
                 });
-                const note = await newNote.save();
-                const season = await Season.findByIdAndUpdate(
-                    seasonId,
-                    { $push: { notes: note._id } },
-                    { new: true }
-                );
+                const note = yield newNote.save();
+                const season = yield seasonSchema_1.Season.findByIdAndUpdate(seasonId, { $push: { notes: note._id } }, { new: true });
                 if (!season) {
-                    throw new Error('Season not found');
+                    throw new Error("Season not found");
                 }
                 return note;
-            } catch (err) {
-                throw new Error(err);
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
         // Add a note to a plant
-        addNoteToPlant: async (_, { plantId, content }) => {
+        addNoteToPlant: (_, { plantId, content }) => __awaiter(void 0, void 0, void 0, function* () {
             try {
-                const newNote = new Note({
+                const newNote = new notesSchema_1.Note({
                     content,
                 });
-                const note = await newNote.save();
-                const plant = await Plant.findByIdAndUpdate(
-                    plantId,
-                    { $push: { notes: note._id } },
-                    { new: true }
-                );
+                const note = yield newNote.save();
+                const plant = yield plantSchema_1.Plant.findByIdAndUpdate(plantId, { $push: { notes: note._id } }, { new: true });
                 if (!plant) {
-                    throw new Error('Plant not found');
+                    throw new Error("Plant not found");
                 }
                 return note;
-            } catch (err) {
-                throw new Error(err);
             }
-        },
+            catch (error) {
+                throw new Error(error.message);
+            }
+        }),
     },
 };
-
-module.exports = noteResolvers;
