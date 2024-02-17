@@ -47,3 +47,13 @@ export const EDIT_PLANT = gql`
     }
   }
 `;
+
+export const ADD_NOTE_TO_SEASON = gql`
+  mutation Mutation($seasonId: ID!, $content: String!) {
+    addNoteToSeason(seasonId: $seasonId, content: $content) {
+      content
+      createdAt
+      id
+    }
+  }
+`;

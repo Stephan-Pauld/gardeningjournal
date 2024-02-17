@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { NewSeasonModal } from "./modals/NewSeasonModal.tsx";
-import { SeasonCard } from "./SeasonCard.tsx";
+import { SeasonCard } from "./cards/SeasonCard.tsx";
 import { useMutation, gql, useQuery } from "@apollo/client";
 import { FieldValues, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";

@@ -1,17 +1,17 @@
 import seedling from "../../assets/seedling.png";
 
-type plantProps = {
-  plants: [];
-  handlePlantSelect: (plant) => void;
-  setCreatingNewPlant: (boolean: boolean) => void;
-};
-
 type Plant = {
   harvestDate: string;
   id: string;
   name: string;
   plantingDate: string;
   variety: string;
+};
+
+type plantProps = {
+  plants: [];
+  handlePlantSelect: (plant: Plant) => void;
+  setCreatingNewPlant: (boolean: boolean) => void;
 };
 
 export const PlantCard = ({
@@ -32,7 +32,7 @@ export const PlantCard = ({
           Add New Plant
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[10px]">
+      <div className="grid grid-cols-3 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[10px]">
         {plants.map((plant: Plant, index: number) => (
           <div
             key={index}

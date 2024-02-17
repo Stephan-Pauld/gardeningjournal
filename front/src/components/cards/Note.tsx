@@ -1,3 +1,6 @@
+import dayjs from "dayjs";
+import { Divider } from "@mui/material";
+
 type Note = {
   content: string;
   createdAt: string;
@@ -5,9 +8,27 @@ type Note = {
 
 type NoteProps = {
   notes: [Note];
+  setCreatingNewNote: (boolean: boolean) => void;
 };
 
-export const Note = ({ notes }: NoteProps) => {
+export const Note = ({ notes, setCreatingNewNote }: NoteProps) => {
+  console.log(notes);
+  const FormattedDate = ({ note }) => {
+    const date = dayjs(parseInt(note.createdAt));
+    const month = date.format("MMMM");
+    const day = date.format("DD");
+    const weekDay = date.format("dddd");
+    return (
+      <div>
+        <p>{month}</p>
+        <div className="text-xl font-bold">
+          {day}
+          <span className=" px-3 font-thin">{weekDay}</span>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="flex justify-between p-[10px] w-fit">
@@ -15,7 +36,7 @@ export const Note = ({ notes }: NoteProps) => {
           Journal Entries
         </h2>
         <button
-          onClick={() => setCreatingNewPlant(true)}
+          onClick={() => setCreatingNewNote(true)}
           className="rounded-md text-sm font-medium border
         border-input bg-background hover:bg-accent hover:text-accent-foreground
         h-10 px-4 py-2 "
@@ -23,21 +44,21 @@ export const Note = ({ notes }: NoteProps) => {
           New Journal Entry
         </button>
       </div>
-      <div className="grid grid-cols-1 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[14px]">
+      <div className="grid grid-cols-1 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[14px] ">
         {notes.map((note: Note, index: number) => (
           <div
             key={note.id}
-            className="flex w-[75%] items-start justify-between border rounded-xl p-3 bg-red-200 cursor-pointer border-gray-800 shadow-[4px_4px_6px_1px_#00625a66]"
+            className="flex items-start justify-between border rounded-xl p-3 bg-red-200 cursor-pointer border-gray-800 shadow-[4px_4px_6px_1px_#00625a66]"
           >
-            <div className="text-xl font-bold">
-              05<span className="font-thin">Friday</span>
+            <div className="flex justify-between items-center w-[100%]">
+              <FormattedDate note={note} />
+              <Divider
+                orientation="vertical"
+                flexItem
+                sx={{ borderColor: "black" }}
+              />
+              <p className="w-[85%] text-left p-3">{note.content}</p>
             </div>
-            <p className="w-[85%] text-left">
-              It was a cold and blustery day. I decided to take a long walk in
-              the park, and the wind was so strong that it nearly blew me over a
-              few times. But the fresh air was invigorating, and I felt my
-              spirits lift with each step.
-            </p>
           </div>
         ))}
       </div>
