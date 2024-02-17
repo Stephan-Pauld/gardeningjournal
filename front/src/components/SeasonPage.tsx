@@ -15,7 +15,9 @@ import {
   UPDATE_SEASON,
   ADD_PLANT_TO_SEASON,
   EDIT_PLANT,
+  ADD_NOTE_TO_SEASON,
 } from "../graphQL/mutations.ts";
+import { NewNoteModal } from "./modals/notes/NewNoteModal.tsx";
 
 type AllSeasonData = {
   name: string;
@@ -44,8 +46,8 @@ export const SeasonPage = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
   const [creatingNewPlant, setCreatingNewPlant] = useState<boolean>(false);
-  const [creatingNewJournalEntry, setCreatingNewJournalEntry] =
-    useState<boolean>(false);
+  const [creatingNewNote, setCreatingNewNote] = useState<boolean>(false);
+
   const [isEditingSeason, setIsEditingSeason] = useState<boolean>(false);
   const [plantView, setPlantView] = useState<PlantView>({
     currentPlant: {
@@ -103,7 +105,15 @@ export const SeasonPage = () => {
       });
     },
   });
-  console.log(allSeasonData);
+
+  const [addNoteToSeason] = useMutation(ADD_NOTE_TO_SEASON, {
+    onCompleted: () => {
+      setCreatingNewNote(false);
+      refetch().then(({ data }) => {
+        setAllSeasonData(data.getSeasonById);
+      });
+    },
+  });
 
   const addNewPlant = async (data: FieldValues) => {
     try {
@@ -130,6 +140,38 @@ export const SeasonPage = () => {
         pending: "Adding plant...🌱",
         success: "Plant added successfully 🪴",
         error: "Failed to add plant 😞",
+      });
+
+      reset();
+    } catch (error) {
+      console.error("Mutation error:", error);
+      reset();
+    }
+  };
+
+  const addNewNote = async (data: FieldValues) => {
+    try {
+      const notePromise = new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const result = await addNoteToSeason({
+              variables: {
+                seasonId: id,
+                content: data.seasonNote,
+              },
+            });
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        }, 1000); // Fake Delay for dev, might keep..
+      });
+
+      // had a brutal time dealing with the promise for the toast...
+      await toast.promise(notePromise, {
+        pending: "Adding Journal Entry...✏️",
+        success: "Entry added successfully 📝",
+        error: "Failed to add entry 😞",
       });
 
       reset();
@@ -226,7 +268,8 @@ export const SeasonPage = () => {
     }
   };
 
-  const AddNewPlantButton = ({ text, state }) => {
+  const EditButton = ({ text, state }) => {
+    console.log(text);
     return (
       <button
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
@@ -239,20 +282,14 @@ export const SeasonPage = () => {
 
   if (seasonLoading) return "Loading";
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-1">
+    <div className="">
       <div className="p-[14px]">
-        <button
-          onClick={() => setIsEditingSeason(true)}
-          className="rounded-md text-sm font-medium border
-          border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-        >
-          Edit Season
-        </button>
+        <EditButton text="Edit Season" state={setIsEditingSeason} />
         <h1 className="text-5xl font-bold tracking-tighter text-center">
           {allSeasonData?.name}
         </h1>
       </div>
-      <div className="flex justify-between p-[14px] w-[75%] items-center mt-[25px]">
+      <div className="flex justify-between p-[14px] w-[85%] items-center mt-[100px] m-auto">
         <h3 className="text-xl font-semibold tracking-tighter">
           Plants: {allSeasonData?.plants.length}
         </h3>
@@ -269,40 +306,44 @@ export const SeasonPage = () => {
             : "Not Ended"}
         </h3>
       </div>
-      <div>
-        {allSeasonData?.plants.length ? (
-          <PlantCard
-            plants={allSeasonData?.plants}
-            handlePlantSelect={handlePlantSelect}
-            setCreatingNewPlant={setCreatingNewPlant}
-          />
-        ) : (
-          <AddNewPlantButton text="Add New Plant" state={setCreatingNewPlant} />
-        )}
+      <div className="flex justify-evenly">
+        <div className="w-[40%]">
+          {allSeasonData?.plants.length ? (
+            <PlantCard
+              plants={allSeasonData?.plants}
+              handlePlantSelect={handlePlantSelect}
+              setCreatingNewPlant={setCreatingNewPlant}
+            />
+          ) : (
+            <EditButton text="Add New Plant" state={setCreatingNewPlant} />
+          )}
+        </div>
+        <div className="w-[40%]">
+          {allSeasonData?.notes.length ? (
+            <Note
+              notes={allSeasonData?.notes}
+              setCreatingNewNote={setCreatingNewNote}
+            />
+          ) : (
+            <EditButton text="New Journal Entry" state={setCreatingNewNote} />
+          )}
+        </div>
       </div>
-      <div>
-        {allSeasonData?.notes.length ? (
-          <Note notes={allSeasonData?.notes} />
-        ) : (
-          <AddNewPlantButton
-            text="New Journal Entry"
-            state={setCreatingNewJournalEntry}
-          />
-        )}
-      </div>
+
+      <NewNoteModal
+        register={register}
+        handleSubmit={handleSubmit}
+        addNewNote={addNewNote}
+        isOpen={creatingNewNote}
+        onClose={setCreatingNewNote}
+      />
+
       <NewPlantModal
         register={register}
         handleSubmit={handleSubmit}
         addNewPlant={addNewPlant}
         isOpen={creatingNewPlant}
         handleNewPlantClose={handleNewPlantClose}
-      />
-
-      <PlantDetailsModal
-        isOpen={plantView.isOpen}
-        onClose={plantModalClose}
-        currentPlant={plantView.currentPlant}
-        handleEditPlant={handleEditPlant}
       />
 
       <EditPlantModal
@@ -315,6 +356,14 @@ export const SeasonPage = () => {
         currentPlant={plantView.currentPlant}
         handlePlantDates={handlePlantDates}
       />
+
+      <PlantDetailsModal
+        isOpen={plantView.isOpen}
+        onClose={plantModalClose}
+        currentPlant={plantView.currentPlant}
+        handleEditPlant={handleEditPlant}
+      />
+
       <EditSeason
         isEditingSeason={isEditingSeason}
         handleSeasonUpdate={handleSeasonUpdate}
