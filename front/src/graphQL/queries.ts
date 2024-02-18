@@ -23,3 +23,17 @@ export const GET_SEASON_BY_ID = gql`
     }
   }
 `;
+
+export const GET_ALL_SEASONS = gql`
+  query Query {
+    getAllSeasons {
+      id
+      name
+      plants {
+        name
+      }
+      lastFrostDate
+      seasonEndDate
+    }
+  }
+`;

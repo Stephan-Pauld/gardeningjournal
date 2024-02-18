@@ -6,13 +6,13 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 import { DatePicker } from "@mui/x-date-pickers";
-import dayjs from "dayjs"; // Import Day.js
+import dayjs, { Dayjs } from "dayjs";
 
 interface Plant {
-  harvestDate: date | null;
+  harvestDate: Dayjs | null;
   id: string;
   name: string;
-  plantingDate: date | null;
+  plantingDate: Dayjs | null;
   variety: string;
 }
 
@@ -23,7 +23,7 @@ type EditPlantModalProps = {
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
   editPlant: (data: FieldValues) => void;
-  handlePlantDates: (plantOrHarvest: string, date: date | null) => void;
+  handlePlantDates: (plantOrHarvest: string, date: Dayjs | null) => void;
 };
 
 export const EditPlantModal = ({
@@ -41,7 +41,11 @@ export const EditPlantModal = ({
       <div className="fixed inset-0 bg-black bg-opacity-80 z-50 flex justify-center items-center">
         <div className="flex justify items-center bg-white rounded-lg shadow-lg">
           <div>
-            <img src={seedling} className="w-[400px] h-[400px] rounded-l-lg" />
+            <img
+              src={seedling}
+              alt={`image of ${currentPlant.name}`}
+              className="w-[400px] h-[400px] rounded-l-lg"
+            />
           </div>
 
           <div className="w-[400px]">
@@ -68,13 +72,13 @@ export const EditPlantModal = ({
               />
               <DatePicker
                 value={dayjs(currentPlant.plantingDate)}
-                onChange={(selectedDate: date | null) =>
+                onChange={(selectedDate: Dayjs | null) =>
                   handlePlantDates("plantDate", selectedDate)
                 }
               />
               <DatePicker
                 value={dayjs(currentPlant.harvestDate)}
-                onChange={(selectedDate: date | null) =>
+                onChange={(selectedDate) =>
                   handlePlantDates("harvestDate", selectedDate)
                 }
               />

@@ -1,5 +1,5 @@
 import { IoCloseCircle } from "react-icons/io5";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { DatePicker } from "@mui/x-date-pickers";
 import {
   FieldValues,
@@ -7,12 +7,26 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 
+type Note = {
+  content: string;
+  createdAt: string;
+  id: string;
+};
+
+type Plant = {
+  harvestDate: Dayjs | null;
+  id: string;
+  name: string;
+  plantingDate: Dayjs | null;
+  variety: string;
+};
+
 type SeasonData = {
   name: string;
-  notes: string[];
-  plants: [];
-  seasonEndDate: date | null;
-  lastFrostDate: date | null;
+  notes: Note[];
+  plants: Plant[];
+  seasonEndDate: Dayjs | null;
+  lastFrostDate: Dayjs | null;
   plantingZone: string;
 };
 
@@ -22,8 +36,8 @@ type EditSeasonProps = {
   handleSeasonUpdate: (data: FieldValues) => void;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
-  handleSeasonDates: (plantOrHarvest: string, date: date | null) => void;
-  seasonData: SeasonData;
+  handleSeasonDates: (plantOrHarvest: string, date: Dayjs | null) => void;
+  seasonData?: SeasonData;
 };
 
 export const EditSeason = ({
@@ -54,7 +68,7 @@ export const EditSeason = ({
               <div className="mt-10 text-left">
                 <label htmlFor="">Season Name</label>
                 <input
-                  defaultValue={seasonData.name}
+                  defaultValue={seasonData?.name}
                   {...register("seasonName")}
                   className="border border-gray-400 rounded p-[10px] w-full"
                   type="text"
@@ -63,7 +77,7 @@ export const EditSeason = ({
               <div className="mt-10 text-left">
                 <label htmlFor="">Planting Zone</label>
                 <input
-                  defaultValue={seasonData.plantingZone}
+                  defaultValue={seasonData?.plantingZone}
                   {...register("plantingZone")}
                   className="border border-gray-400 rounded p-[10px] w-full"
                   type="text"
@@ -75,8 +89,8 @@ export const EditSeason = ({
                     Last Frost Date
                   </label>
                   <DatePicker
-                    value={dayjs(seasonData.lastFrostDate)}
-                    onChange={(selectedDate: date | null) =>
+                    value={dayjs(seasonData?.lastFrostDate)}
+                    onChange={(selectedDate) =>
                       handleSeasonDates("lastFrost", selectedDate)
                     }
                   />
@@ -86,8 +100,8 @@ export const EditSeason = ({
                     Last Harvest
                   </label>
                   <DatePicker
-                    value={dayjs(seasonData.seasonEndDate)}
-                    onChange={(selectedDate: date | null) =>
+                    value={dayjs(seasonData?.seasonEndDate)}
+                    onChange={(selectedDate) =>
                       handleSeasonDates("lastHarvest", selectedDate)
                     }
                   />

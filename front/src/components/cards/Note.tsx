@@ -5,16 +5,21 @@ import { GrEdit } from "react-icons/gr";
 type Note = {
   content: string;
   createdAt: string;
+  id: string;
+};
+
+type FormattedDateProps = {
+  note: Note;
 };
 
 type NoteProps = {
-  notes: [Note];
+  notes: Note[];
   setCreatingNewNote: (boolean: boolean) => void;
   editNote: (note: Note) => void;
 };
 
 export const Note = ({ notes, setCreatingNewNote, editNote }: NoteProps) => {
-  const FormattedDate = ({ note }) => {
+  const FormattedDate = ({ note }: FormattedDateProps) => {
     const date = dayjs(parseInt(note.createdAt));
     const month = date.format("MMMM");
     const day = date.format("DD");

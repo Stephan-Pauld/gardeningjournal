@@ -1,5 +1,12 @@
 import { gql } from "@apollo/client";
 
+export const NEW_SEASON = gql`
+  mutation Mutation($name: String!) {
+    addSeason(name: $name) {
+      id
+    }
+  }
+`;
 export const UPDATE_SEASON = gql`
   mutation Mutation(
     $updateSeasonId: ID!
