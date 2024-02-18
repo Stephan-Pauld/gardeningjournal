@@ -16,8 +16,14 @@ import {
   ADD_PLANT_TO_SEASON,
   EDIT_PLANT,
   ADD_NOTE_TO_SEASON,
+  UPDATE_NOTE,
 } from "../graphQL/mutations.ts";
 import { NewNoteModal } from "./modals/notes/NewNoteModal.tsx";
+type Note = {
+  content: string;
+  createdAt: string;
+  id: string;
+};
 
 type AllSeasonData = {
   name: string;
@@ -46,9 +52,11 @@ export const SeasonPage = () => {
   const { id } = useParams();
   const [allSeasonData, setAllSeasonData] = useState<AllSeasonData>();
   const [creatingNewPlant, setCreatingNewPlant] = useState<boolean>(false);
-  const [creatingNewNote, setCreatingNewNote] = useState<boolean>(false);
-
   const [isEditingSeason, setIsEditingSeason] = useState<boolean>(false);
+  const [creatingNewNote, setCreatingNewNote] = useState<boolean>(false);
+  const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
+  const [noteId, setNoteId] = useState("");
+
   const [plantView, setPlantView] = useState<PlantView>({
     currentPlant: {
       harvestDate: null,
@@ -61,16 +69,17 @@ export const SeasonPage = () => {
     isOpen: false,
   });
 
-  const { register, handleSubmit, reset, setValue } = useForm({
+  const { register, handleSubmit, reset, setValue, getValues } = useForm({
     defaultValues: {
       id: "",
       harvestDate: "",
       name: "",
       plantingDate: "",
       variety: "",
+      seasonNote: "",
     },
   });
-
+  const values = getValues();
   const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
     variables: {
       getSeasonById: id,
@@ -115,7 +124,17 @@ export const SeasonPage = () => {
     },
   });
 
+  const [updateNote] = useMutation(UPDATE_NOTE, {
+    onCompleted: () => {
+      refetch().then(({ data }) => {
+        setAllSeasonData(data.getSeasonById);
+      });
+    },
+  });
+
   const addNewPlant = async (data: FieldValues) => {
+    console.log("adding a plant");
+
     try {
       // had a brutal time dealing with the promise for the toast...
       const plantPromise = new Promise((resolve, reject) => {
@@ -179,6 +198,48 @@ export const SeasonPage = () => {
       console.error("Mutation error:", error);
       reset();
     }
+  };
+  const handleUpdateNote = async (data: FieldValues) => {
+    try {
+      const notePromise = new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const result = await updateNote({
+              variables: {
+                noteId,
+                content: data.seasonNote,
+              },
+            });
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        }, 1000); // Fake Delay for dev, might keep..
+      });
+
+      // had a brutal time dealing with the promise for the toast...
+      await toast.promise(notePromise, {
+        pending: "Adding Journal Entry...✏️",
+        success: "Entry added successfully 📝",
+        error: "Failed to add entry 😞",
+      });
+
+      reset();
+    } catch (error) {
+      console.error("Mutation error:", error);
+      reset();
+    }
+  };
+  const editNote = (note: Note) => {
+    setNoteId(note.id);
+    setValue("seasonNote", note.content);
+    setIsEditingNote(true);
+  };
+  const handleCloseNote = () => {
+    setIsEditingNote(false);
+    setCreatingNewNote(false);
+    setNoteId("");
+    setValue("seasonNote", "");
   };
 
   const editPlant = async (data: FieldValues) => {
@@ -269,7 +330,6 @@ export const SeasonPage = () => {
   };
 
   const EditButton = ({ text, state }) => {
-    console.log(text);
     return (
       <button
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
@@ -323,6 +383,7 @@ export const SeasonPage = () => {
             <Note
               notes={allSeasonData?.notes}
               setCreatingNewNote={setCreatingNewNote}
+              editNote={editNote}
             />
           ) : (
             <EditButton text="New Journal Entry" state={setCreatingNewNote} />
@@ -335,7 +396,9 @@ export const SeasonPage = () => {
         handleSubmit={handleSubmit}
         addNewNote={addNewNote}
         isOpen={creatingNewNote}
-        onClose={setCreatingNewNote}
+        isEditingNote={isEditingNote}
+        onClose={handleCloseNote}
+        updateNote={handleUpdateNote}
       />
 
       <NewPlantModal
