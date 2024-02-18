@@ -7,10 +7,12 @@ import { TextField } from "@mui/material";
 
 type NewNoteModal = {
   isOpen: boolean;
-  onClose: (boolean: boolean) => void;
+  onClose: () => void;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
   addNewNote: (data: FieldValues) => void;
+  isEditingNote: boolean;
+  updateNote: (data: FieldValues) => void;
 };
 
 export const NewNoteModal = ({
@@ -19,12 +21,15 @@ export const NewNoteModal = ({
   handleSubmit,
   onClose,
   addNewNote,
+  isEditingNote,
+  updateNote,
 }: NewNoteModal) => {
-  if (!isOpen) return null;
+  if (!isEditingNote && !isOpen) return null;
+  const onSubmit = isEditingNote ? updateNote : addNewNote;
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
       <div className="bg-white rounded-lg shadow-lg p-[56px]">
-        <form onSubmit={handleSubmit(addNewNote)}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div className="flex flex-col w-[900px]">
             <TextField
               {...register("seasonNote")}
@@ -42,7 +47,10 @@ export const NewNoteModal = ({
             />
             <button
               className="bg-red-500 px-6 py-2 rounded-[3px] font-medium ml-5"
-              onClick={() => onClose(false)}
+              onClick={(e) => {
+                e.preventDefault();
+                onClose();
+              }}
             >
               Cancel
             </button>

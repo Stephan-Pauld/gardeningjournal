@@ -38,7 +38,6 @@ export const noteResolvers = {
         throw new Error(error.message);
       }
     },
-    // Update a note by ID
     updateNote: async (_: any, { noteId, content }: { noteId: string, content: string }) => {
       try {
         const updatedNote = await Note.findByIdAndUpdate(
@@ -54,7 +53,6 @@ export const noteResolvers = {
         throw new Error(error.message);
       }
     },
-    // Delete a note by ID
     deleteNote: async (_: any, { noteId }: { noteId: string }) => {
       try {
         const note = await Note.findByIdAndDelete(noteId);
@@ -66,7 +64,6 @@ export const noteResolvers = {
         throw new Error(error.message);
       }
     },
-    // Add a note to a season
     addNoteToSeason: async (_: any, { seasonId, content }: { seasonId: string, content: string }) => {
       try {
         const newNote = new Note({

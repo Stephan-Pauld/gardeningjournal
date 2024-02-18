@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { Divider } from "@mui/material";
+import { GrEdit } from "react-icons/gr";
 
 type Note = {
   content: string;
@@ -9,10 +10,10 @@ type Note = {
 type NoteProps = {
   notes: [Note];
   setCreatingNewNote: (boolean: boolean) => void;
+  editNote: (note: Note) => void;
 };
 
-export const Note = ({ notes, setCreatingNewNote }: NoteProps) => {
-  console.log(notes);
+export const Note = ({ notes, setCreatingNewNote, editNote }: NoteProps) => {
   const FormattedDate = ({ note }) => {
     const date = dayjs(parseInt(note.createdAt));
     const month = date.format("MMMM");
@@ -45,10 +46,10 @@ export const Note = ({ notes, setCreatingNewNote }: NoteProps) => {
         </button>
       </div>
       <div className="grid grid-cols-1 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[14px] ">
-        {notes.map((note: Note, index: number) => (
+        {notes.map((note: Note) => (
           <div
             key={note.id}
-            className="flex items-start justify-between border rounded-xl p-3 bg-red-200 cursor-pointer border-gray-800 shadow-[4px_4px_6px_1px_#00625a66]"
+            className="flex items-start justify-between border rounded-xl p-3 bg-red-200 border-gray-800 shadow-[4px_4px_6px_1px_#00625a66]"
           >
             <div className="flex justify-between items-center w-[100%]">
               <FormattedDate note={note} />
@@ -58,6 +59,9 @@ export const Note = ({ notes, setCreatingNewNote }: NoteProps) => {
                 sx={{ borderColor: "black" }}
               />
               <p className="w-[85%] text-left p-3">{note.content}</p>
+            </div>
+            <div onClick={() => editNote(note)} className="cursor-pointer">
+              <GrEdit style={{ fontSize: "20px" }} />
             </div>
           </div>
         ))}
