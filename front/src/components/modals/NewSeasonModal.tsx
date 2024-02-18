@@ -6,7 +6,7 @@ import {
 
 type NewSeasonModalProps = {
   isOpen: boolean;
-  onClose: () => void;
+  onClose: (bool: boolean) => void;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
   onSubmit: (data: FieldValues) => void;

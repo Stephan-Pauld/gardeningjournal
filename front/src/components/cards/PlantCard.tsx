@@ -1,15 +1,16 @@
 import seedling from "../../assets/seedling.png";
+import dayjs, { Dayjs } from "dayjs";
 
 type Plant = {
-  harvestDate: string;
+  harvestDate: Dayjs | null;
   id: string;
   name: string;
-  plantingDate: string;
+  plantingDate: Dayjs | null;
   variety: string;
 };
 
 type plantProps = {
-  plants: [];
+  plants: Plant[];
   handlePlantSelect: (plant: Plant) => void;
   setCreatingNewPlant: (boolean: boolean) => void;
 };
@@ -19,6 +20,10 @@ export const PlantCard = ({
   handlePlantSelect,
   setCreatingNewPlant,
 }: plantProps) => {
+  const formattedDate = (rawDate: Dayjs | null) => {
+    if (!rawDate) return "";
+    return dayjs(rawDate).format("MMM DD YYYY");
+  };
   return (
     <>
       <div className="flex justify-between p-[10px] w-fit">
@@ -51,10 +56,10 @@ export const PlantCard = ({
               <h3 className="text-lg font-bold mt-2">{plant.name}</h3>
               <div className="flex justify-around w-[100%]">
                 <p className="text-sm text-gray-500">
-                  Planted on: {plant.plantingDate}
+                  Planted on: {formattedDate(plant.plantingDate)}
                 </p>
                 <p className="text-sm text-gray-500">
-                  Harvest Date: {plant.harvestDate}
+                  Harvest Date: {formattedDate(plant.harvestDate)}
                 </p>
               </div>
             </div>

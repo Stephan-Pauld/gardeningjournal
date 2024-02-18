@@ -1,33 +1,13 @@
 import { useState } from "react";
 import { NewSeasonModal } from "./modals/NewSeasonModal.tsx";
 import { SeasonCard } from "./cards/SeasonCard.tsx";
-import { useMutation, gql, useQuery } from "@apollo/client";
+import { useMutation, useQuery } from "@apollo/client";
 import { FieldValues, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-const NEW_SEASON = gql`
-  mutation Mutation($name: String!) {
-    addSeason(name: $name) {
-      id
-    }
-  }
-`;
-
-const GET_ALL_SEASONS = gql`
-  query Query {
-    getAllSeasons {
-      id
-      name
-      plants {
-        name
-      }
-      lastFrostDate
-      seasonEndDate
-    }
-  }
-`;
+import { NEW_SEASON } from "../graphQL/mutations.ts";
+import { GET_ALL_SEASONS } from "../graphQL/queries.ts";
 
 type Season = {
   id: string;

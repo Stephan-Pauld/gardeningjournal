@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "cd front && npm run dev",
-    "server": "cd back && node server.ts",
+    "server": "cd back && node server.js",
     "install:front": "cd front && npm install",
     "install:back": "cd back && npm install",
     "build:front": "cd front && npm run build"

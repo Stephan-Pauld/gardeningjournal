@@ -9,6 +9,7 @@ import { EditSeason } from "./modals/season/EditSeason.tsx";
 import { PlantDetailsModal } from "./modals/plants/PlantDetailsModal.tsx";
 import { ToastContainer, toast } from "react-toastify";
 import { Note } from "./cards/Note.tsx";
+import { NewNoteModal } from "./modals/notes/NewNoteModal.tsx";
 import "react-toastify/dist/ReactToastify.css";
 import { GET_SEASON_BY_ID } from "../graphQL/queries.ts";
 import {
@@ -18,7 +19,16 @@ import {
   ADD_NOTE_TO_SEASON,
   UPDATE_NOTE,
 } from "../graphQL/mutations.ts";
-import { NewNoteModal } from "./modals/notes/NewNoteModal.tsx";
+import { Dayjs } from "dayjs";
+
+type Plant = {
+  harvestDate: Dayjs | null;
+  id: string;
+  name: string;
+  plantingDate: Dayjs | null;
+  variety: string;
+};
+
 type Note = {
   content: string;
   createdAt: string;
@@ -27,18 +37,19 @@ type Note = {
 
 type AllSeasonData = {
   name: string;
-  notes: string[];
-  plants: [];
-  seasonEndDate: Date | null;
-  lastFrostDate: Date | null;
+  notes: Note[];
+  plants: Plant[];
+  seasonEndDate: Dayjs | null;
+  lastFrostDate: Dayjs | null;
   plantingZone: string;
+  id: string;
 };
 
 type CurrentPlantData = {
-  harvestDate: Date | null;
+  harvestDate: Dayjs | null;
   id: string;
   name: string;
-  plantingDate: Date | null;
+  plantingDate: Dayjs | null;
   variety: string;
 };
 
@@ -69,7 +80,7 @@ export const SeasonPage = () => {
     isOpen: false,
   });
 
-  const { register, handleSubmit, reset, setValue, getValues } = useForm({
+  const { register, handleSubmit, reset, setValue } = useForm<FieldValues>({
     defaultValues: {
       id: "",
       harvestDate: "",
@@ -77,9 +88,10 @@ export const SeasonPage = () => {
       plantingDate: "",
       variety: "",
       seasonNote: "",
+      lastFrost: "",
+      lastHarvest: "",
     },
   });
-  const values = getValues();
   const { loading: seasonLoading, refetch } = useQuery(GET_SEASON_BY_ID, {
     variables: {
       getSeasonById: id,
@@ -278,7 +290,7 @@ export const SeasonPage = () => {
   const handleSeasonUpdate = async (data: FieldValues) => {
     await updateSeason({
       variables: {
-        updateSeasonId: allSeasonData.id,
+        updateSeasonId: allSeasonData?.id,
         name: data.seasonName,
         plantingZone: data.plantingZone,
         lastFrostDate: data.lastFrost,
@@ -294,10 +306,18 @@ export const SeasonPage = () => {
   const handlePlantSelect = (plant: CurrentPlantData) => {
     setPlantView({ ...plantView, currentPlant: { ...plant }, isOpen: true });
     setValue("variety", plant.variety);
-    setValue("plantingDate", plant.plantingDate);
     setValue("name", plant.name);
-    setValue("harvestDate", plant.harvestDate);
     setValue("id", plant.id);
+
+    //Sometimes our planting date will be null so we need to make it into a string to matter what
+    setValue(
+      "plantingDate",
+      plant.plantingDate ? plant.plantingDate.toString() : "",
+    );
+    setValue(
+      "harvestDate",
+      plant.harvestDate ? plant.harvestDate.toString() : "",
+    );
   };
 
   const plantModalClose = () => {
@@ -307,7 +327,7 @@ export const SeasonPage = () => {
     setPlantView({ ...plantView, isEditing: true, isOpen: false });
   };
 
-  const handlePlantDates = (plantOrHarvest: string, date: Date | null) => {
+  const handlePlantDates = (plantOrHarvest: string, date: Dayjs | null) => {
     if (!date) return;
     const formattedDate = date.format("YYYY-MM-DD");
     if (plantOrHarvest === "plantDate") {
@@ -318,7 +338,7 @@ export const SeasonPage = () => {
     }
   };
 
-  const handleSeasonDates = (seasonDate: string, date: Date | null) => {
+  const handleSeasonDates = (seasonDate: string, date: Dayjs | null) => {
     if (!date) return;
     const formattedDate = date.format("YYYY-MM-DD");
     if (seasonDate === "lastFrost") {
@@ -329,11 +349,17 @@ export const SeasonPage = () => {
     }
   };
 
-  const EditButton = ({ text, state }) => {
+  const EditButton = ({
+    text,
+    setState,
+  }: {
+    text: string;
+    setState: (boolean: boolean) => void;
+  }) => {
     return (
       <button
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
-        onClick={() => state(true)}
+        onClick={() => setState(true)}
       >
         {text}
       </button>
@@ -344,7 +370,7 @@ export const SeasonPage = () => {
   return (
     <div className="">
       <div className="p-[14px]">
-        <EditButton text="Edit Season" state={setIsEditingSeason} />
+        <EditButton text="Edit Season" setState={setIsEditingSeason} />
         <h1 className="text-5xl font-bold tracking-tighter text-center">
           {allSeasonData?.name}
         </h1>
@@ -356,13 +382,13 @@ export const SeasonPage = () => {
         <h3 className="text-xl font-semibold tracking-tighter">
           Last Frost:{" "}
           {allSeasonData?.lastFrostDate
-            ? allSeasonData?.lastFrostDate
+            ? allSeasonData?.lastFrostDate.toString()
             : "Not Specified"}
         </h3>
         <h3 className="text-xl font-semibold tracking-tighter">
           Last Harvest:{" "}
           {allSeasonData?.seasonEndDate
-            ? allSeasonData?.seasonEndDate
+            ? allSeasonData?.seasonEndDate.toString()
             : "Not Ended"}
         </h3>
       </div>
@@ -375,7 +401,7 @@ export const SeasonPage = () => {
               setCreatingNewPlant={setCreatingNewPlant}
             />
           ) : (
-            <EditButton text="Add New Plant" state={setCreatingNewPlant} />
+            <EditButton text="Add New Plant" setState={setCreatingNewPlant} />
           )}
         </div>
         <div className="w-[40%]">
@@ -386,7 +412,10 @@ export const SeasonPage = () => {
               editNote={editNote}
             />
           ) : (
-            <EditButton text="New Journal Entry" state={setCreatingNewNote} />
+            <EditButton
+              text="New Journal Entry"
+              setState={setCreatingNewNote}
+            />
           )}
         </div>
       </div>
@@ -413,7 +442,6 @@ export const SeasonPage = () => {
         register={register}
         handleSubmit={handleSubmit}
         editPlant={editPlant}
-        isOpen={plantView.isOpen}
         isEditing={plantView.isEditing}
         onClose={plantModalClose}
         currentPlant={plantView.currentPlant}

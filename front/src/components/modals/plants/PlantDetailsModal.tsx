@@ -1,11 +1,12 @@
 import seedling from "../../../assets/seedling.png";
 import { GrEdit } from "react-icons/gr";
 import { IoCloseCircle } from "react-icons/io5";
+import { Dayjs } from "dayjs";
 interface Plant {
-  harvestDate: string;
+  harvestDate: Dayjs | null;
   id: string;
   name: string;
-  plantingDate: string;
+  plantingDate: Dayjs | null;
   variety: string;
 }
 
