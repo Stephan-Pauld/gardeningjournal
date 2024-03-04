@@ -10,7 +10,7 @@ type Plant = {
 };
 
 type plantProps = {
-  plants: Plant[];
+  plants: Plant[] | undefined;
   handlePlantSelect: (plant: Plant) => void;
   setCreatingNewPlant: (boolean: boolean) => void;
 };
@@ -24,6 +24,7 @@ export const PlantCard = ({
     if (!rawDate) return "";
     return dayjs(rawDate).format("MMM DD YYYY");
   };
+
   return (
     <>
       <div className="flex justify-between p-[10px] w-fit">
@@ -37,11 +38,11 @@ export const PlantCard = ({
           Add New Plant
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-4 overflow-x-auto max-h-[500px] items-start justify-center p-[10px]">
-        {plants.map((plant: Plant, index: number) => (
+      <div className="flex flex-wrap gap-6 justify-center">
+        {plants?.map((plant: Plant, index: number) => (
           <div
             key={index}
-            className="rounded-lg border shadow-[4px_4px_6px_1px_#00625a66]"
+            className="rounded-lg border shadow-[4px_4px_6px_1px_#00625a66] w-[25%]"
             data-v0-t="card"
             onClick={() => handlePlantSelect(plant)}
           >
