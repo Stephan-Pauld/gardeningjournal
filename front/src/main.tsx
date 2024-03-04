@@ -4,10 +4,11 @@ import "./App.css";
 import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
 import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import { MainPage } from "./components/MainPage.tsx";
-import { SeasonPage } from "./components/SeasonPage.tsx";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { MainPage } from "./components/MainPage.tsx";
+import { SeasonPage } from "./components/SeasonPage.tsx";
+import { SeedlingTracker } from "./components/seedlingTracker/SeedlingTracker.tsx";
 
 const client = new ApolloClient({
   uri: "http://localhost:4000/graphql",
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
     path: "/",
     element: <MainPage />,
   },
+  {
+    path: "/seedling-tracker",
+    element: <SeedlingTracker />,
+  },
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -32,5 +37,5 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
         <RouterProvider router={router} />
       </ApolloProvider>
     </LocalizationProvider>
-  </React.StrictMode>,
+  </React.StrictMode>
 );

@@ -20,6 +20,8 @@ import {
   UPDATE_NOTE,
 } from "../graphQL/mutations.ts";
 import { Dayjs } from "dayjs";
+import { NavBar } from "./NavBar.tsx";
+import { PlantPage } from "./plants/PlantPage.tsx";
 
 type Plant = {
   harvestDate: Dayjs | null;
@@ -67,6 +69,7 @@ export const SeasonPage = () => {
   const [creatingNewNote, setCreatingNewNote] = useState<boolean>(false);
   const [isEditingNote, setIsEditingNote] = useState<boolean>(false);
   const [noteId, setNoteId] = useState("");
+  const [navStep, setNavStep] = useState(0);
 
   const [plantView, setPlantView] = useState<PlantView>({
     currentPlant: {
@@ -144,9 +147,10 @@ export const SeasonPage = () => {
     },
   });
 
+  const handleNavChange = (step: number) => {
+    setNavStep(step);
+  };
   const addNewPlant = async (data: FieldValues) => {
-    console.log("adding a plant");
-
     try {
       // had a brutal time dealing with the promise for the toast...
       const plantPromise = new Promise((resolve, reject) => {
@@ -312,11 +316,11 @@ export const SeasonPage = () => {
     //Sometimes our planting date will be null so we need to make it into a string to matter what
     setValue(
       "plantingDate",
-      plant.plantingDate ? plant.plantingDate.toString() : "",
+      plant.plantingDate ? plant.plantingDate.toString() : ""
     );
     setValue(
       "harvestDate",
-      plant.harvestDate ? plant.harvestDate.toString() : "",
+      plant.harvestDate ? plant.harvestDate.toString() : ""
     );
   };
 
@@ -369,56 +373,32 @@ export const SeasonPage = () => {
   if (seasonLoading) return "Loading";
   return (
     <div className="">
-      <div className="p-[14px]">
+      <div className="p-[14px] flex items-center">
         <EditButton text="Edit Season" setState={setIsEditingSeason} />
         <h1 className="text-5xl font-bold tracking-tighter text-center">
           {allSeasonData?.name}
         </h1>
       </div>
-      <div className="flex justify-between p-[14px] w-[85%] items-center mt-[100px] m-auto">
-        <h3 className="text-xl font-semibold tracking-tighter">
-          Plants: {allSeasonData?.plants.length}
-        </h3>
-        <h3 className="text-xl font-semibold tracking-tighter">
-          Last Frost:{" "}
-          {allSeasonData?.lastFrostDate
-            ? allSeasonData?.lastFrostDate.toString()
-            : "Not Specified"}
-        </h3>
-        <h3 className="text-xl font-semibold tracking-tighter">
-          Last Harvest:{" "}
-          {allSeasonData?.seasonEndDate
-            ? allSeasonData?.seasonEndDate.toString()
-            : "Not Ended"}
-        </h3>
-      </div>
-      <div className="flex justify-evenly">
-        <div className="w-[40%]">
-          {allSeasonData?.plants.length ? (
-            <PlantCard
-              plants={allSeasonData?.plants}
-              handlePlantSelect={handlePlantSelect}
-              setCreatingNewPlant={setCreatingNewPlant}
-            />
-          ) : (
-            <EditButton text="Add New Plant" setState={setCreatingNewPlant} />
-          )}
-        </div>
-        <div className="w-[40%]">
-          {allSeasonData?.notes.length ? (
-            <Note
-              notes={allSeasonData?.notes}
-              setCreatingNewNote={setCreatingNewNote}
-              editNote={editNote}
-            />
-          ) : (
-            <EditButton
-              text="New Journal Entry"
-              setState={setCreatingNewNote}
-            />
-          )}
-        </div>
-      </div>
+      <NavBar handleNavChange={handleNavChange} navStep={navStep} />
+
+      {navStep === 0 && (
+        <PlantPage
+          plantCount={allSeasonData?.plants.length}
+          plants={allSeasonData?.plants}
+        />
+      )}
+
+      {/* <div>
+        {allSeasonData?.notes.length ? (
+          <Note
+            notes={allSeasonData?.notes}
+            setCreatingNewNote={setCreatingNewNote}
+            editNote={editNote}
+          />
+        ) : (
+          <EditButton text="New Journal Entry" setState={setCreatingNewNote} />
+        )}
+      </div> */}
 
       <NewNoteModal
         register={register}
