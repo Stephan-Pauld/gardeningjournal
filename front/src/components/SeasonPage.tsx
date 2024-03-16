@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { FieldValues, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "@apollo/client";
-import { PlantCard } from "./cards/PlantCard.tsx";
 import { NewPlantModal } from "./modals/plants/NewPlantModal.tsx";
 import { EditPlantModal } from "./modals/plants/EditPlantModal.tsx";
 import { EditSeason } from "./modals/season/EditSeason.tsx";
@@ -121,15 +120,6 @@ export const SeasonPage = () => {
     },
   });
 
-  const [addPlantToSeason] = useMutation(ADD_PLANT_TO_SEASON, {
-    onCompleted: () => {
-      setCreatingNewPlant(false);
-      refetch().then(({ data }) => {
-        setAllSeasonData(data.getSeasonById);
-      });
-    },
-  });
-
   const [addNoteToSeason] = useMutation(ADD_NOTE_TO_SEASON, {
     onCompleted: () => {
       setCreatingNewNote(false);
@@ -149,39 +139,6 @@ export const SeasonPage = () => {
 
   const handleNavChange = (step: number) => {
     setNavStep(step);
-  };
-  const addNewPlant = async (data: FieldValues) => {
-    try {
-      // had a brutal time dealing with the promise for the toast...
-      const plantPromise = new Promise((resolve, reject) => {
-        setTimeout(async () => {
-          try {
-            const result = await addPlantToSeason({
-              variables: {
-                seasonId: id,
-                name: data.plantName,
-                variety: data.variety,
-              },
-            });
-            resolve(result);
-          } catch (error) {
-            reject(error);
-          }
-        }, 1000); // Fake Delay for dev, might keep..
-      });
-
-      // had a brutal time dealing with the promise for the toast...
-      await toast.promise(plantPromise, {
-        pending: "Adding plant...🌱",
-        success: "Plant added successfully 🪴",
-        error: "Failed to add plant 😞",
-      });
-
-      reset();
-    } catch (error) {
-      console.error("Mutation error:", error);
-      reset();
-    }
   };
 
   const addNewNote = async (data: FieldValues) => {
@@ -215,6 +172,9 @@ export const SeasonPage = () => {
       reset();
     }
   };
+  function updateSeasonData(data) {
+    setAllSeasonData(data.getSeasonById);
+  }
   const handleUpdateNote = async (data: FieldValues) => {
     try {
       const notePromise = new Promise((resolve, reject) => {
@@ -303,26 +263,22 @@ export const SeasonPage = () => {
     });
   };
 
-  const handleNewPlantClose = () => {
-    setCreatingNewPlant(false);
-  };
+  // const handlePlantSelect = (plant: CurrentPlantData) => {
+  //   setPlantView({ ...plantView, currentPlant: { ...plant }, isOpen: true });
+  //   setValue("variety", plant.variety);
+  //   setValue("name", plant.name);
+  //   setValue("id", plant.id);
 
-  const handlePlantSelect = (plant: CurrentPlantData) => {
-    setPlantView({ ...plantView, currentPlant: { ...plant }, isOpen: true });
-    setValue("variety", plant.variety);
-    setValue("name", plant.name);
-    setValue("id", plant.id);
-
-    //Sometimes our planting date will be null so we need to make it into a string to matter what
-    setValue(
-      "plantingDate",
-      plant.plantingDate ? plant.plantingDate.toString() : ""
-    );
-    setValue(
-      "harvestDate",
-      plant.harvestDate ? plant.harvestDate.toString() : ""
-    );
-  };
+  //   //Sometimes our planting date will be null so we need to make it into a string to matter what
+  //   setValue(
+  //     "plantingDate",
+  //     plant.plantingDate ? plant.plantingDate.toString() : ""
+  //   );
+  //   setValue(
+  //     "harvestDate",
+  //     plant.harvestDate ? plant.harvestDate.toString() : ""
+  //   );
+  // };
 
   const plantModalClose = () => {
     setPlantView({ ...plantView, isOpen: false, isEditing: false });
@@ -385,6 +341,8 @@ export const SeasonPage = () => {
         <PlantPage
           plantCount={allSeasonData?.plants.length}
           plants={allSeasonData?.plants}
+          refetch={refetch}
+          updateSeasonData={updateSeasonData}
         />
       )}
 
@@ -408,14 +366,6 @@ export const SeasonPage = () => {
         isEditingNote={isEditingNote}
         onClose={handleCloseNote}
         updateNote={handleUpdateNote}
-      />
-
-      <NewPlantModal
-        register={register}
-        handleSubmit={handleSubmit}
-        addNewPlant={addNewPlant}
-        isOpen={creatingNewPlant}
-        handleNewPlantClose={handleNewPlantClose}
       />
 
       <EditPlantModal

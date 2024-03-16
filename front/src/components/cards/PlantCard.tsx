@@ -27,17 +27,6 @@ export const PlantCard = ({
 
   return (
     <>
-      <div className="flex justify-between p-[10px] w-fit">
-        <h2 className="text-2xl font-bold text-left mr-[30px]">My Plants</h2>
-        <button
-          onClick={() => setCreatingNewPlant(true)}
-          className="rounded-md text-sm font-medium border
-        border-input bg-background hover:bg-accent hover:text-accent-foreground
-        h-10 px-4 py-2 "
-        >
-          Add New Plant
-        </button>
-      </div>
       <div className="flex flex-wrap gap-6 justify-center">
         {plants?.map((plant: Plant, index: number) => (
           <div

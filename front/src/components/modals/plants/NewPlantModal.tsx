@@ -6,7 +6,7 @@ import {
 
 type NewPlantModalProps = {
   isOpen: boolean;
-  handleNewPlantClose: () => void;
+  handleNewPlantClose: (boolean: boolean) => void;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
   addNewPlant: (data: FieldValues) => void;
@@ -47,7 +47,7 @@ export const NewPlantModal = ({
             />
             <button
               className="bg-red-500 px-6 py-2 rounded-[3px] font-medium"
-              onClick={handleNewPlantClose}
+              onClick={() => handleNewPlantClose(false)}
             >
               Cancel
             </button>
