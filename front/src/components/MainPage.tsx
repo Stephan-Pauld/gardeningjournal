@@ -8,7 +8,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { NEW_SEASON } from "../graphQL/mutations.ts";
 import { GET_ALL_SEASONS } from "../graphQL/queries.ts";
-import { NavBar } from "./NavBar.tsx";
 
 type Season = {
   id: string;
@@ -33,6 +32,7 @@ export const MainPage = () => {
       reset();
     },
   });
+
   const { data: allSeasonData } = useQuery<AllSeasonData>(GET_ALL_SEASONS);
 
   const { register, handleSubmit, reset } = useForm();

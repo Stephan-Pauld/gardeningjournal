@@ -18,7 +18,7 @@ interface Plant {
 
 type EditPlantModalProps = {
   isEditing: boolean;
-  onClose: (boolean: boolean) => void;
+  onClose: () => void;
   currentPlant: Plant;
   register: UseFormRegister<FieldValues>;
   handleSubmit: UseFormHandleSubmit<FieldValues>;
@@ -50,10 +50,7 @@ export const EditPlantModal = ({
 
           <div className="w-[400px]">
             <div className="flex justify-end m-4 text-2xl">
-              <IoCloseCircle
-                onClick={() => onClose(false)}
-                style={{ cursor: "pointer" }}
-              />
+              <IoCloseCircle onClick={onClose} style={{ cursor: "pointer" }} />
             </div>
             <div className="flex flex-col m-2 items-start">
               <h5 className="text-3xl font-bold tracking-tighter">EDITING</h5>
