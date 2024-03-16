@@ -4,9 +4,11 @@ import { useState } from "react";
 import { NewPlantModal } from "../modals/plants/NewPlantModal";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@apollo/client";
-import { ADD_PLANT_TO_SEASON } from "../../graphQL/mutations";
+import { ADD_PLANT_TO_SEASON, EDIT_PLANT } from "../../graphQL/mutations";
 import { useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { PlantDetailsModal } from "../modals/plants/PlantDetailsModal";
+import { EditPlantModal } from "../modals/plants/EditPlantModal";
 
 interface Plant {
   harvestDate: Dayjs | null;
@@ -15,14 +17,23 @@ interface Plant {
   plantingDate: Dayjs | null;
   variety: string;
 }
-
+type CurrentPlantData = {
+  harvestDate: Dayjs | null;
+  id: string;
+  name: string;
+  plantingDate: Dayjs | null;
+  variety: string;
+};
+type PlantView = {
+  currentPlant: CurrentPlantData;
+  isEditing: boolean;
+  isOpen: boolean;
+};
 interface PlantPageProps {
-  plantCount: number | undefined;
   plants: Plant[] | undefined;
 }
 
 export const PlantPage = ({
-  plantCount,
   plants,
   refetch,
   updateSeasonData,
@@ -45,7 +56,13 @@ export const PlantPage = ({
     onCompleted: () => {
       setCreatingNewPlant(false);
       refetch().then(({ data }) => {
-        // setAllSeasonData(data.getSeasonById);
+        updateSeasonData(data);
+      });
+    },
+  });
+  const [updatePlant] = useMutation(EDIT_PLANT, {
+    onCompleted: () => {
+      refetch().then(({ data }) => {
         updateSeasonData(data);
       });
     },
@@ -88,12 +105,42 @@ export const PlantPage = ({
     }
   };
 
-  // const handleNewPlantClose = () => {
-  //   setPlantView({ ...plantView, isOpen: false });
-  // };
+  const editPlant = async (data: FieldValues) => {
+    try {
+      const plantUpdatePromise = new Promise((resolve, reject) => {
+        setTimeout(async () => {
+          try {
+            const result = await updatePlant({
+              variables: {
+                updatePlantId: data.id,
+                name: data.name,
+                variety: data.variety,
+                plantingDate: data.plantingDate,
+                harvestDate: data.harvestDate,
+              },
+            });
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        }, 1000); // Fake Delay for dev, might keep..
+      });
+
+      await toast.promise(plantUpdatePromise, {
+        pending: "Updating plant...🌱",
+        success: "Plant successfully updated 🪴",
+        error: "Failed to update plant 😞",
+      });
+      reset();
+      setPlantView({ ...plantView, isOpen: false, isEditing: false });
+    } catch (error) {
+      console.error("Mutation error:", error);
+      reset();
+      setPlantView({ ...plantView, isOpen: false, isEditing: false });
+    }
+  };
 
   const handlePlantSelect = (plant: CurrentPlantData) => {
-    console.log("selecting", plant);
     setPlantView({ ...plantView, currentPlant: { ...plant }, isOpen: true });
 
     setValue("variety", plant.variety);
@@ -111,10 +158,28 @@ export const PlantPage = ({
     );
   };
 
+  const handlePlantDates = (plantOrHarvest: string, date: Dayjs | null) => {
+    if (!date) return;
+    const formattedDate = date.format("YYYY-MM-DD");
+    if (plantOrHarvest === "plantDate") {
+      setValue("plantingDate", formattedDate);
+    }
+    if (plantOrHarvest === "harvestDate") {
+      setValue("harvestDate", formattedDate);
+    }
+  };
+
+  function handlePlantModalClose() {
+    setPlantView({ ...plantView, isOpen: false, isEditing: false });
+  }
+
+  const handleIsEditingPlant = () => {
+    setPlantView({ ...plantView, isEditing: true, isOpen: false });
+  };
+
   return (
     <>
       <div className="flex justify-between p-[10px] w-fit">
-        <h2 className="text-2xl font-bold text-left mr-[30px]">My Plants</h2>
         <button
           onClick={() => setCreatingNewPlant(true)}
           className="rounded-md text-sm font-medium border
@@ -124,12 +189,7 @@ export const PlantPage = ({
           Add New Plant
         </button>
       </div>
-      {/* {plantCount ? ( */}
-      <PlantCard
-        plants={plants}
-        handlePlantSelect={handlePlantSelect}
-        // setCreatingNewPlant={setCreatingNewPlant}
-      />
+      <PlantCard plants={plants} handlePlantSelect={handlePlantSelect} />
       {/* ) : (
           <EditButton text="Add New Plant" setState={setCreatingNewPlant} />
         )} */}
@@ -140,6 +200,21 @@ export const PlantPage = ({
         addNewPlant={addNewPlant}
         isOpen={creatingNewPlant}
         handleNewPlantClose={setCreatingNewPlant}
+      />
+      <PlantDetailsModal
+        isOpen={plantView.isOpen}
+        onClose={handlePlantModalClose}
+        currentPlant={plantView.currentPlant}
+        handleEditPlant={handleIsEditingPlant}
+      />
+      <EditPlantModal
+        register={register}
+        handleSubmit={handleSubmit}
+        editPlant={editPlant}
+        isEditing={plantView.isEditing}
+        onClose={handlePlantModalClose}
+        currentPlant={plantView.currentPlant}
+        handlePlantDates={handlePlantDates}
       />
     </>
   );

@@ -12,7 +12,7 @@ interface Plant {
 
 type PlantDetailModalProps = {
   isOpen: boolean;
-  onClose: (boolean: boolean) => void;
+  onClose: () => void;
   currentPlant: Plant;
   handleEditPlant: () => void;
 };
@@ -39,10 +39,7 @@ export const PlantDetailsModal = ({
               <GrEdit />
               <p className="text-sm font-bold">edit</p>
             </div>
-            <IoCloseCircle
-              style={{ cursor: "pointer" }}
-              onClick={() => onClose(false)}
-            />
+            <IoCloseCircle style={{ cursor: "pointer" }} onClick={onClose} />
           </div>
           <div className="flex flex-col m-4 items-start">
             <h5 className="text-3xl font-bold tracking-tighter">
